@@ -32,6 +32,6 @@ public class SwaggerConfig {
         // OpenAPI 객체 구성
         return new OpenAPI()
                 .info(info)
-                .servers(List.of(localServer, server));
+                .servers(List.of(server, localServer));
     }
 }
