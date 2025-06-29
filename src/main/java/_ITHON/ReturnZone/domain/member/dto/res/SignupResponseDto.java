@@ -12,12 +12,12 @@ public class SignupResponseDto {
     @Schema(description = "회원가입된 이메일", example = "dongkyun@gmail.com")
     private final String email;
 
-    @Schema(description = "회원가입된 닉네임", example = "두옹균")
-    private final String nickname;
+    @Schema(description = "회원가입된 이름", example = "김동균")
+    private final String username;
 
     @Builder
     private SignupResponseDto(Member member) {
         this.email = member.getEmail();
-        this.nickname = member.getNickname();
+        this.username = member.getUsername();
     }
 }

@@ -12,9 +12,9 @@ import lombok.NoArgsConstructor;
 @Schema(description = "회원가입 요청 DTO")
 public class SignupRequestDto {
 
-    @NotBlank(message = "닉네임이 비어있습니다.")
-    @Schema(description = "사용자의 닉네임", example = "dongkyun")
-    private String nickname;
+    @NotBlank(message = "이름이 비어있습니다.")
+    @Schema(description = "사용자의 이름", example = "김동균")
+    private String username;
 
     @NotBlank(message = "이메일이 비어있습니다.")
     @Email(message = "유효한 이메일 주소를 입력해주세요.")
