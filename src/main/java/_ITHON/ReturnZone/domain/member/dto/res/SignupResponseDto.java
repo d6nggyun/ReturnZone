@@ -9,10 +9,10 @@ import lombok.Getter;
 @Schema(description = "회원가입 응답 DTO")
 public class SignupResponseDto {
 
-    @Schema(description = "회원가입된 이메일", example = "dongkyun@gmail.com")
+    @Schema(description = "회원가입된 이메일", example = "gildong@gmail.com")
     private final String email;
 
-    @Schema(description = "회원가입된 이름", example = "김동균")
+    @Schema(description = "회원가입된 이름", example = "홍길동")
     private final String username;
 
     @Builder
