@@ -25,6 +25,8 @@ jobs:
           files: ./src/main/resources/application-prod.yml
         env:
           spring.datasource.url: ${{ secrets.MYSQL_URL }}
+          spring.datasource.username: ${{ secrets.MYSQL_USERNAME }}
+          spring.datasource.password: ${{ secrets.MYSQL_PASSWORD }}
 
       - name: Build with Gradle
         run: |
