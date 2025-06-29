@@ -23,6 +23,11 @@ public class MemberService {
 
         log.info("[회원가입 요청] email={}", signupRequestDto.getEmail());
 
+        if (memberRepository.existsByEmail(signupRequestDto.getEmail())) {
+            log.warn("[이미 가입된 이메일] email={}", signupRequestDto.getEmail());
+            throw new IllegalArgumentException("이미 가입된 이메일입니다.");
+        }
+
         Member member = new Member(signupRequestDto, passwordEncoder.encode(signupRequestDto.getPassword()));
 
         memberRepository.save(member);
