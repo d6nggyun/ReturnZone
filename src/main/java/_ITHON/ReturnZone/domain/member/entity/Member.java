@@ -1,5 +1,6 @@
 package _ITHON.ReturnZone.domain.member.entity;
 
+import _ITHON.ReturnZone.domain.member.dto.req.SignupRequestDto;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -24,9 +25,15 @@ public class Member {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = true)
     private String nickname;
 
     @Column(nullable = true)
     private String imageUrl;
+
+    public Member(SignupRequestDto signupRequestDto, String encodedPassword) {
+        this.email = signupRequestDto.getEmail();
+        this.username = signupRequestDto.getUsername();
+        this.password = encodedPassword;
+    }
 }
