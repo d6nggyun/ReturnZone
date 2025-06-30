@@ -1,6 +1,8 @@
 package _ITHON.ReturnZone.domain.member.controller;
 
+import _ITHON.ReturnZone.domain.member.dto.req.LoginRequestDto;
 import _ITHON.ReturnZone.domain.member.dto.req.SignupRequestDto;
+import _ITHON.ReturnZone.domain.member.dto.res.LoginResponseDto;
 import _ITHON.ReturnZone.domain.member.dto.res.SignupResponseDto;
 import _ITHON.ReturnZone.domain.member.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,12 +14,15 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "회원 API", description = "회원가입, 로그인 등 회원 관련 API")
 @RestController
+@RequestMapping("/api/v1/members") // 경로를 /api/v1/members로 통일
 @RequiredArgsConstructor
-@RequestMapping("/api/members")
-@Tag(name = "Member", description = "회원 관련 API")
 public class MemberController {
 
     private final MemberService memberService;
@@ -33,5 +38,12 @@ public class MemberController {
     @PostMapping("/signup")
     public ResponseEntity<SignupResponseDto> signup(@Valid @RequestBody SignupRequestDto signupRequestDto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(memberService.signup(signupRequestDto));
+    }
+
+    @Operation(summary = "로그인", description = "이메일과 비밀번호로 로그인합니다.")
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginRequestDto loginRequestDto) {
+        LoginResponseDto responseDto = memberService.login(loginRequestDto);
+        return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
 }
