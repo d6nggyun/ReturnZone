@@ -15,9 +15,13 @@ public class LoginResponseDto {
     @Schema(description = "로그인된 이름", example = "홍길동")
     private final String username;
 
+    @Schema(description = "로그인된 프로필 이미지 URL", example = "http://example.com/profile.jpg")
+    private final String imageUrl;
+
     @Builder
     private LoginResponseDto(Member member) {
         this.email = member.getEmail();
         this.username = member.getUsername();
+        this.imageUrl = member.getImageUrl();
     }
 }
