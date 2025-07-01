@@ -44,7 +44,7 @@ public class MemberController {
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
 
-    @Operation(summary = "이메일 중복 확인 [ JWT ❌ ]", description = "이메일이 이미 존재하는지 확인합니다.",
+    @Operation(summary = "이메일 중복 확인", description = "이메일이 이미 존재하는지 확인합니다.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "사용 가능 여부 반환",
                             content = @Content(
