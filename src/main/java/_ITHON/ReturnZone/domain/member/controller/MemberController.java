@@ -14,10 +14,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "회원 API", description = "회원가입, 로그인 등 회원 관련 API")
 @RestController
@@ -45,5 +42,21 @@ public class MemberController {
     public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginRequestDto loginRequestDto) {
         LoginResponseDto responseDto = memberService.login(loginRequestDto);
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
+    }
+
+    @Operation(summary = "이메일 중복 확인 [ JWT ❌ ]", description = "이메일이 이미 존재하는지 확인합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "사용 가능 여부 반환",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = Boolean.class)
+                            )
+                    ),
+                    @ApiResponse(responseCode = "400", description = "이메일이 중복되었습니다.")
+            }
+    )
+    @GetMapping("/email/{email}")
+    public ResponseEntity<Boolean> checkEmailDuplicated(@PathVariable String email) {
+        return ResponseEntity.status(HttpStatus.OK).body(memberService.checkEmailDuplicated(email));
     }
 }
