@@ -1,4 +1,4 @@
-package _ITHON.ReturnZone.domain.member.converter; // <-- 요청한 패키지 경로
+package _ITHON.ReturnZone.domain.member.converter;
 
 import _ITHON.ReturnZone.domain.member.dto.res.LoginResponseDto; // LoginResponseDto 임포트
 import _ITHON.ReturnZone.domain.member.entity.Member; // Member 엔티티 임포트
