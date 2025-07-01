@@ -56,4 +56,16 @@ public class MemberService {
         log.info("[로그인 성공] memberId={}, email={}", member.getId(), member.getEmail());
         return LoginResponseDto.builder().member(member).build();
     }
+
+    @Transactional(readOnly = true)
+    public Boolean checkEmailDuplicated(String email) {
+
+        log.info("[이메일 중복 확인] email={}", email);
+
+        if (memberRepository.existsByEmail(email)) {
+            log.warn("[중복 이메일] email={}", email);
+            throw new IllegalArgumentException("중복된 이메일입니다.");
+        }
+        return true;
+    }
 }
