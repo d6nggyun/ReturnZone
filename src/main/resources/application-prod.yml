@@ -23,3 +23,8 @@ logging:
   level:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+kakao:
+  auth:
+    client-id: 4b5c5b6d6f920a0fe945665f2da2648a
+    redirect-uri: http://localhost:8080/auth/login/kakao
