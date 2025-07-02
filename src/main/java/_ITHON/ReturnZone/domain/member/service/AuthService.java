@@ -23,7 +23,6 @@ public class AuthService {
     private final KakaoConfig kakaoConfig;
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
-    // private final JwtUtil jwtUtil; // <-- JWT를 사용하지 않으므로 제거
 
     @Transactional
     public Member oAuthLogin(String accessCode, HttpServletResponse httpServletResponse) {
@@ -54,10 +53,6 @@ public class AuthService {
             log.info("[카카오 OAuth 로그인] 새 회원 가입 완료: memberId={}", member.getId());
         }
 
-        // 4. (선택 사항) JWT 토큰 생성 및 응답 헤더에 추가 (JWT를 사용한다면 여기에 구현)
-        // JWT를 사용하지 않으므로 관련 코드는 주석 처리 또는 삭제
-        // String jwtToken = jwtUtil.createAccessToken(member.getEmail(), member.getRole().toString());
-        // httpServletResponse.setHeader("Authorization", "Bearer " + jwtToken);
 
         return member;
     }
@@ -65,11 +60,11 @@ public class AuthService {
     // 카카오 로그인으로 회원가입 처리
     @Transactional
     private Member createKakaoMember(String email, String nickname, String profileImageUrl) {
-        Member member = new Member(); // @NoArgsConstructor와 @Setter가 있으므로 사용 가능
+        Member member = new Member();
         member.setEmail(email);
         member.setUsername(nickname);
-        member.setProvider("kakao"); // 카카오 가입임을 명시
-        member.setImageUrl(profileImageUrl); // imageUrl 설정
+        member.setProvider("kakao");
+        member.setImageUrl(profileImageUrl);
 
         // 카카오 로그인은 비밀번호가 필요 없지만, DB 스키마에 NOT NULL 제약조건이 있다면 임시 비밀번호를 생성
         member.setPassword(passwordEncoder.encode(UUID.randomUUID().toString())); // 무작위 비밀번호 생성 후 암호화

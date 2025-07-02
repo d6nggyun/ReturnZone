@@ -1,4 +1,4 @@
-package _ITHON.ReturnZone.domain.member.response; // <-- 이 부분이 수정되었어!
+package _ITHON.ReturnZone.domain.member.response;
 
 import lombok.Getter;
 
