@@ -30,7 +30,7 @@ public class LostPostController {
 
     private final LostPostService lostPostService;
 
-    @Operation(summary = "분실물 목록 조회", description = "분실물 목록을 조회합니다.",
+    @Operation(summary = "분실물 목록 조회", description = "분실물 목록을 조회합니다. (기본값은 최신순 정렬)",
             responses = {
                     @ApiResponse(responseCode = "200", description = "분실물 조회 성공",
                             content = @Content(mediaType = "application/json",
