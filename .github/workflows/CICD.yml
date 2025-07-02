@@ -69,6 +69,8 @@ jobs:
               docker stop spring-server
               docker rm spring-server
             fi
+            
+            docker image prune -af
 
             docker run -d \
               --name spring-server \
