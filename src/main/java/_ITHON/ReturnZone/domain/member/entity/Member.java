@@ -39,6 +39,7 @@ public class Member {
     public Member(SignupRequestDto signupRequestDto, String encodedPassword) {
         this.email = signupRequestDto.getEmail();
         this.username = signupRequestDto.getUsername();
+        this.nickname = signupRequestDto.getUsername();
         this.password = encodedPassword;
         this.provider = "local"; // <-- 회원가입 시 기본값을 "local"로 설정
     }
