@@ -46,6 +46,14 @@ public class LostPost {
     @Column(nullable = false)
     private String locationDetail;
 
+    // 경도
+    @Column(nullable = false, precision = 10)
+    private Double longitude;
+
+    // 위도
+    @Column(nullable = false, precision = 10)
+    private Double latitude;
+
     @Column(nullable = false)
     private LocalDateTime lostAt;
 
@@ -56,6 +64,9 @@ public class LostPost {
 
     @Column(nullable = false)
     private BigDecimal reward;
+
+    @Column(name = "instant_settlement", nullable = false)
+    private boolean instantSettlement = false;
 
     @Column(name = "created_at", updatable = false, nullable = false)
     private LocalDateTime createdAt;
