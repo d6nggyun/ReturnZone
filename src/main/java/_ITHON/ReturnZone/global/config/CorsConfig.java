@@ -17,7 +17,7 @@ public class CorsConfig {
 
         configuration.setAllowCredentials(true);
         configuration.setAllowedOriginPatterns(List.of(
-                "http://15.164.234.32",
+                "http://15.164.234.32:*",
                 "http://localhost:*"
         ));
         configuration.addAllowedHeader("*");
