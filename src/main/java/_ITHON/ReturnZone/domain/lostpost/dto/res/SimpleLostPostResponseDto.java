@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Getter
 @Schema(description = "분실물 미리보기 응답 DTO")
@@ -22,7 +23,7 @@ public class SimpleLostPostResponseDto {
     private final String timeAgo;
 
     @Schema(description = "위치", example = "월계 1동")
-    private final String location;
+    private final String location; // DTO 필드명은 'location'으로 유지 (표시용)
 
     @Schema(description = "현상금 (원)", example = "10000")
     private final BigDecimal reward;
@@ -38,7 +39,7 @@ public class SimpleLostPostResponseDto {
         this.lostPostId = lostPost.getId();
         this.title = lostPost.getTitle();
         this.timeAgo = TimeUtil.getTimeAgo(lostPost.getCreatedAt());
-        this.location = lostPost.getLocation();
+        this.location = lostPost.getLostLocationDong(); // <-- 엔티티의 lostLocationDong 매핑
         this.reward = lostPost.getReward();
         this.mainImageUrl = lostPost.getImageUrls().isEmpty()
                 ? null
