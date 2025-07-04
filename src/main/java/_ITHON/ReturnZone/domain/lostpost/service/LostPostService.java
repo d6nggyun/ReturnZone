@@ -9,14 +9,12 @@ import _ITHON.ReturnZone.domain.member.entity.Member;
 import _ITHON.ReturnZone.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Slf4j
 @Service
@@ -27,8 +25,8 @@ public class LostPostService {
     private final MemberRepository memberRepository;
 
     @Transactional(readOnly = true)
-    public List<SimpleLostPostResponseDto> getLostPostList(SortType sort, Double lat, Double lng,
-                                                           Boolean instant, String category, Pageable pageable) {
+    public Slice<SimpleLostPostResponseDto> getLostPostList(SortType sort, Double lat, Double lng,
+                                                            Boolean instant, String category, Pageable pageable) {
 
         log.info("[분실물 목록 조회] page={}, size={}", pageable.getPageNumber(), pageable.getPageSize());
 
@@ -36,7 +34,7 @@ public class LostPostService {
         Pageable finalPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
                 Sort.by(Sort.Direction.DESC, "createdAt"));
 
-        Page<LostPost> lostPostPage;
+        Slice<LostPost> lostPostSlice;
 
         if (sort == SortType.DISTANCE) {
             if (lat == null || lng == null) {
@@ -44,18 +42,15 @@ public class LostPostService {
             }
             // 거리순 정렬은 쿼리에서 처리, pageable 정렬은 제거
             Pageable distancePageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
-            lostPostPage = lostPostRepository.findByFilterOrderByDistance(lat, lng, category, instant, distancePageable);
+            lostPostSlice = lostPostRepository.findByFilterOrderByDistance(lat, lng, category, instant, distancePageable);
         } else {
             // 기본 최신순 정렬
-            lostPostPage = lostPostRepository.findByFilter(category, instant, finalPageable);
+            lostPostSlice = lostPostRepository.findByFilter(category, instant, finalPageable);
         }
-
-        List<SimpleLostPostResponseDto> simpleLostPostResponseDtos = lostPostPage.stream()
-                .map(lostPost -> SimpleLostPostResponseDto.builder().lostPost(lostPost).build()).toList();
 
         log.info("[분실물 목록 조회 성공]");
 
-        return simpleLostPostResponseDtos;
+        return lostPostSlice.map(lostPost -> SimpleLostPostResponseDto.builder().lostPost(lostPost).build());
     }
 
     @Transactional(readOnly = true)

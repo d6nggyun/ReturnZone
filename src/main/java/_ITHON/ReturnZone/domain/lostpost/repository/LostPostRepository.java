@@ -1,8 +1,8 @@
 package _ITHON.ReturnZone.domain.lostpost.repository;
 
 import _ITHON.ReturnZone.domain.lostpost.entity.LostPost;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -27,16 +27,16 @@ public interface LostPostRepository extends JpaRepository<LostPost, Long> {
         AND (:instant IS NULL OR lp.instant_settlement = :instant)
     """,
             nativeQuery = true)
-    Page<LostPost> findByFilterOrderByDistance(@Param("lat") double lat,
-                                               @Param("lng") double lng,
-                                               @Param("category") String category,
-                                               @Param("instant") Boolean instant,
-                                               Pageable pageable);
+    Slice<LostPost> findByFilterOrderByDistance(@Param("lat") double lat,
+                                                @Param("lng") double lng,
+                                                @Param("category") String category,
+                                                @Param("instant") Boolean instant,
+                                                Pageable pageable);
 
     @Query("""
     SELECT lp FROM LostPost lp
     WHERE (:category IS NULL OR lp.category = :category)
         AND (:instant IS NULL OR lp.instantSettlement = :instant)
     """)
-    Page<LostPost> findByFilter(String category, Boolean instant, Pageable pageable);
+    Slice<LostPost> findByFilter(String category, Boolean instant, Pageable pageable);
 }
