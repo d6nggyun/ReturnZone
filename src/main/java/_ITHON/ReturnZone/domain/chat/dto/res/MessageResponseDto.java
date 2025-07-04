@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+
 @Getter
 @Schema(description = "채팅 응답 DTO")
 public class MessageResponseDto {

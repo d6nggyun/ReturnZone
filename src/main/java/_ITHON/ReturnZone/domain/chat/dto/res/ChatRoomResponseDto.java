@@ -1,4 +1,46 @@
 package _ITHON.ReturnZone.domain.chat.dto.res;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
+import lombok.Getter;
+
+import java.time.LocalDateTime;
+
+@Getter
+@Schema(description = "채팅방 응답 DTO")
 public class ChatRoomResponseDto {
+
+    @Schema(description = "채팅방 ID", example = "1")
+    private final Long roomId;
+
+    @Schema(description = "상대방 회원 ID", example = "2")
+    private final Long otherMemberId;
+
+    @Schema(description = "상대방 닉네임", example = "honggildong")
+    private final String otherMemberNickname;
+
+    @Schema(description = "상대방 프로필 이미지 URL", example = "/images/profile/2.png")
+    private final String otherMemberProfileImage;
+
+    @Schema(description = "마지막 메시지 내용", example = "안녕하세요!")
+    private final String lastMessage;
+
+    @Schema(description = "마지막 메시지 전송 시간", example = "2025-07-05T18:00:00")
+    private final LocalDateTime lastMessageAt;
+
+    @Schema(description = "읽지 않은 메시지 수", example = "3")
+    private final int unreadCount;
+
+    @Builder
+    public ChatRoomResponseDto(Long roomId, Long otherMemberId, String otherMemberNickname,
+                               String otherMemberProfileImage, String lastMessage,
+                               LocalDateTime lastMessageAt, int unreadCount) {
+        this.roomId = roomId;
+        this.otherMemberId = otherMemberId;
+        this.otherMemberNickname = otherMemberNickname;
+        this.otherMemberProfileImage = otherMemberProfileImage;
+        this.lastMessage = lastMessage;
+        this.lastMessageAt = lastMessageAt;
+        this.unreadCount = unreadCount;
+    }
 }

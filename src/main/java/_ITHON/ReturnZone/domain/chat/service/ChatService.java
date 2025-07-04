@@ -39,20 +39,13 @@ public class ChatService {
         return MessageResponseDto.builder().message(message).build();
     }
 
-    @Transactional
-    public void markRead(Long roomId, Long readerId) {
-        ChatRoom chatRoom = chatRoomRepository.findById(roomId).orElseThrow();
-        if (readerId.equals(chatRoom.getMemberAId())) chatRoomRepository.setLastReadAtByA(LocalDateTime.now());
-        else chatRoom.setLastReadAtByB(LocalDateTime.now());
-    }
-
     @Transactional(readOnly = true)
     public Slice<ChatRoomResponseDto> getChatRooms(Long memberId, Pageable pageable) {
 
         Slice<ChatRoom> chatRoomSlice =
                 chatRoomRepository.findByMemberAIdOrMemberBIdOrderByLastMessageAtDesc(memberId, memberId, pageable);
 
-        return chatRoomSlice.stream().map(chatRoom -> ChatRoomResponseDto.builder);
+        return chatRoomSlice.map(chatRoom -> ChatRoomResponseDto.builder().build());
     }
 
     @Transactional(readOnly = true)
@@ -61,8 +54,6 @@ public class ChatService {
         Slice<Message> messageSlice =
                 messageRepository.findByChatRoomIdOrderByCreatedAtDesc(roomId, pageable);
 
-        return messageSlice.stream()
-                .map(message -> MessageResponseDto.builder().message(message).build())
-                .toList();
+        return messageSlice.map(message -> MessageResponseDto.builder().message(message).build());
     }
 }
