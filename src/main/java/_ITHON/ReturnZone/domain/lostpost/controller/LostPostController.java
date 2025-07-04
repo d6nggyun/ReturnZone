@@ -6,7 +6,6 @@ import _ITHON.ReturnZone.domain.lostpost.entity.SortType;
 import _ITHON.ReturnZone.domain.lostpost.service.LostPostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -33,7 +32,7 @@ public class LostPostController {
             responses = {
                     @ApiResponse(responseCode = "200", description = "분실물 조회 성공",
                             content = @Content(mediaType = "application/json",
-                                    array = @ArraySchema(schema = @Schema(implementation = SimpleLostPostResponseDto.class)))
+                                    schema = @Schema(implementation = SimpleLostPostResponseDto.class))
                     )
             }
     )
