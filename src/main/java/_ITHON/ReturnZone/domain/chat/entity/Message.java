@@ -1,6 +1,5 @@
 package _ITHON.ReturnZone.domain.chat.entity;
 
-import _ITHON.ReturnZone.domain.chat.dto.req.SendMessageRequestDto;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -34,11 +33,11 @@ public class Message {
     private LocalDateTime createdAt;
 
     @Builder
-    public Message(SendMessageRequestDto request) {
-        this.chatRoomId = request.getRoomId();
-        this.senderId = request.getSenderId();
-        this.content = request.getContent();
-        this.imageUrl = request.getImageUrl();
+    public Message(Long roomId, Long senderId, String content, String imageUrl) {
+        this.chatRoomId = roomId;
+        this.senderId = senderId;
+        this.content = content;
+        this.imageUrl = imageUrl;
     }
 
     @PrePersist

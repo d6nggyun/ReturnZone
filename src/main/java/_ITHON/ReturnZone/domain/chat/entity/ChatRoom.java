@@ -10,27 +10,60 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "chat_room")
+@Table(
+        name = "chat_room",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_chat_pair",
+                columnNames = {"smaller_member_id", "greater_member_id"}
+        ),
+        indexes = @Index(name = "idx_lastMessageAt", columnList = "lastMessageAt DESC")
+)
 public class ChatRoom {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private Long memberAId;
+    @Column(name = "smaller_member_id", nullable = false)
+    private Long smallerMemberId;
 
-    @Column(nullable = false)
-    private Long memberBId;
+    @Column(name = "greater_member_id", nullable = false)
+    private Long greaterMemberId;
 
+    @Column(name = "last_message_at", nullable = false)
     private LocalDateTime lastMessageAt;
 
-    // 읽음 처리용(선택)
-    private LocalDateTime lastReadAtByA;
-    private LocalDateTime lastReadAtByB;
+    @Column(name = "last_read_at_smaller")
+    private LocalDateTime lastReadAtSmaller;
 
-    // 두 멤버가 같은 DM인지 조회
-    public static String uniqueKey(Long a, Long b) {
-        return (a < b) ? a + "_" + b : b + "_" + a; // 필요 시 Unique 인덱스로
+    @Column(name = "last_read_at_greater")
+    private LocalDateTime lastReadAtGreater;
+
+    public static ChatRoom of(Long aId, Long bId) {
+        ChatRoom room = new ChatRoom();
+        if (aId < bId) {
+            room.smallerMemberId = aId;
+            room.greaterMemberId = bId;
+        } else {
+            room.smallerMemberId = bId;
+            room.greaterMemberId = aId;
+        }
+        room.lastMessageAt = LocalDateTime.now();
+        return room;
+    }
+
+    public Long opponentOf(Long memberId) {
+        return memberId.equals(smallerMemberId) ? greaterMemberId : smallerMemberId;
+    }
+
+    public LocalDateTime getLastReadAt(Long memberId) {
+        return memberId.equals(smallerMemberId) ? lastReadAtSmaller : lastReadAtGreater;
+    }
+
+    public void markRead(Long memberId) {
+        if (memberId.equals(smallerMemberId))
+            this.lastReadAtSmaller = LocalDateTime.now();
+        else
+            this.lastReadAtGreater = LocalDateTime.now();
     }
 }

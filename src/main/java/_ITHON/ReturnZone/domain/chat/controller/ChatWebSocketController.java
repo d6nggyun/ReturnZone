@@ -19,7 +19,7 @@ public class ChatWebSocketController {
     @MessageMapping("/chat.send")
     public void handleMessage(SendMessageRequestDto request) {
         // 채팅 메시지 처리
-        MessageResponseDto response = chatService.sendMessage(request);
+        MessageResponseDto response = chatService.sendMessage(request.getRoomId(), request.getSenderId(), request.getContent(), null);
 
         // WebSocket을 통해 클라이언트에게 메시지 전송
         messagingTemplate.convertAndSend("/topic/chat/" + response.getRoomId(), response);
