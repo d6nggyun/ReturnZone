@@ -1,5 +1,7 @@
 package _ITHON.ReturnZone.domain.chat.dto.res;
 
+import _ITHON.ReturnZone.domain.chat.entity.ChatRoom;
+import _ITHON.ReturnZone.domain.member.entity.Member;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
@@ -32,15 +34,13 @@ public class ChatRoomResponseDto {
     private final int unreadCount;
 
     @Builder
-    public ChatRoomResponseDto(Long roomId, Long otherMemberId, String otherMemberNickname,
-                               String otherMemberProfileImage, String lastMessage,
-                               LocalDateTime lastMessageAt, int unreadCount) {
-        this.roomId = roomId;
-        this.otherMemberId = otherMemberId;
-        this.otherMemberNickname = otherMemberNickname;
-        this.otherMemberProfileImage = otherMemberProfileImage;
+    public ChatRoomResponseDto(ChatRoom chatRoom, Member otherMember, String lastMessage, int unreadCount) {
+        this.roomId = chatRoom.getId();
+        this.otherMemberId = otherMember.getId();
+        this.otherMemberNickname = otherMember.getNickname();
+        this.otherMemberProfileImage = otherMember.getImageUrl();
         this.lastMessage = lastMessage;
-        this.lastMessageAt = lastMessageAt;
+        this.lastMessageAt = chatRoom.getLastMessageAt();
         this.unreadCount = unreadCount;
     }
 }
