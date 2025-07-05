@@ -14,9 +14,9 @@ import _ITHON.ReturnZone.domain.lostpost.service.KakaoLocalApiService;
 import _ITHON.ReturnZone.global.aws.s3.AwsS3Uploader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,7 +25,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.security.access.AccessDeniedException;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,32 +42,30 @@ public class LostPostService {
     // --- 기존 조회 기능 ---
 
     @Transactional(readOnly = true)
-    public List<SimpleLostPostResponseDto> getLostPostList(SortType sort, Double lat, Double lng,
-                                                           Boolean instant, String category, Pageable pageable) {
+    public Slice<SimpleLostPostResponseDto> getLostPostList(SortType sort, Double lat, Double lng,
+                                                            Boolean instant, String category, Pageable pageable) {
 
         log.info("[분실물 목록 조회] page={}, size={}", pageable.getPageNumber(), pageable.getPageSize());
 
         Pageable finalPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
                 Sort.by(Sort.Direction.DESC, "createdAt"));
 
-        Page<LostPost> lostPostPage;
+        Slice<LostPost> lostPostSlice;
 
         if (sort == SortType.DISTANCE) {
             if (lat == null || lng == null) {
                 throw new IllegalArgumentException("거리순 정렬에는 latitude/longitude 값이 필요합니다.");
             }
             Pageable distancePageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
-            lostPostPage = lostPostRepository.findByFilterOrderByDistance(lat, lng, category, instant, distancePageable);
+            lostPostSlice = lostPostRepository.findByFilterOrderByDistance(lat, lng, category, instant, distancePageable);
         } else {
-            lostPostPage = lostPostRepository.findByFilter(category, instant, finalPageable);
+            // 기본 최신순 정렬
+            lostPostSlice = lostPostRepository.findByFilter(category, instant, finalPageable);
         }
-
-        List<SimpleLostPostResponseDto> simpleLostPostResponseDtos = lostPostPage.stream()
-                .map(lostPost -> SimpleLostPostResponseDto.builder().lostPost(lostPost).build()).toList();
 
         log.info("[분실물 목록 조회 성공]");
 
-        return simpleLostPostResponseDtos;
+        return lostPostSlice.map(lostPost -> SimpleLostPostResponseDto.builder().lostPost(lostPost).build());
     }
 
     @Transactional(readOnly = true)

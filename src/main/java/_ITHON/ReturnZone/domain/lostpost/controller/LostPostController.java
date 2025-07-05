@@ -9,7 +9,6 @@ import _ITHON.ReturnZone.domain.lostpost.service.KakaoLocalApiService;
 import _ITHON.ReturnZone.domain.lostpost.service.LostPostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -18,6 +17,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -25,8 +25,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -41,12 +39,12 @@ public class LostPostController {
             responses = {
                     @ApiResponse(responseCode = "200", description = "분실물 조회 성공",
                             content = @Content(mediaType = "application/json",
-                                    array = @ArraySchema(schema = @Schema(implementation = SimpleLostPostResponseDto.class)))
+                                    schema = @Schema(implementation = SimpleLostPostResponseDto.class))
                     )
             }
     )
     @GetMapping
-    public ResponseEntity<List<SimpleLostPostResponseDto>> getLostPostList(
+    public ResponseEntity<Slice<SimpleLostPostResponseDto>> getLostPostList(
             @Parameter(description = "정렬 방식<br>• **LATEST**: 최신순<br>• **DISTANCE**: 거리순(위·경도 필수)", schema = @Schema(defaultValue = "LATEST", allowableValues = {"LATEST","DISTANCE"}))
             @RequestParam(defaultValue = "LATEST") SortType sort,
 
