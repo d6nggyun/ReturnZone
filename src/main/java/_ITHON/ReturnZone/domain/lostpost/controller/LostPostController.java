@@ -115,7 +115,7 @@ public class LostPostController {
             })
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<LostPostResponseDto> createLostPost(
-            @Valid @RequestPart("requestDto") LostPostRequestDto requestDto,
+            @Valid @RequestPart LostPostRequestDto requestDto,
             @RequestPart(value = "images", required = false) List<MultipartFile> images,
             @Parameter(description = "현재 로그인된 사용자 ID (X-USER-ID 헤더로 전달)", example = "1") // 스웨거 문서화
             @RequestHeader("X-USER-ID") Long memberId) { // 클라이언트가 X-USER-ID 헤더로 사용자 ID를 보내야 함) {
@@ -136,7 +136,7 @@ public class LostPostController {
     @PutMapping(value = "/{lostPostId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<LostPostResponseDto> updateLostPost(
             @PathVariable Long lostPostId,
-            @Valid @RequestPart("requestDto") LostPostRequestDto requestDto,
+            @Valid @RequestPart LostPostRequestDto requestDto,
             @RequestPart(value = "images", required = false) List<MultipartFile> images,
             @Parameter(description = "현재 로그인된 사용자 ID (X-USER-ID 헤더로 전달)", example = "1") // 스웨거 문서화
             @RequestHeader("X-USER-ID") Long memberId) { // 클라이언트가 X-USER-ID 헤더로 사용자 ID를 보내야 함) {
