@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -12,6 +15,7 @@ import java.util.List;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "lost_post")
 public class LostPost {
@@ -23,15 +27,21 @@ public class LostPost {
     @Column(name = "member_id", nullable = false)
     private Long memberId;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 15)
     private String title;
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "lost_post_images", joinColumns = @JoinColumn(name = "lost_post_id"))
-    @Column(name = "image_url", nullable = false)
+    @Column(name = "image_url")
     private List<String> imageUrls = new ArrayList<>();
 
-    @Column(nullable = false)
+    // 등록 유형 필드 추가 (enum 타입, 문자열로 저장)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "registration_type", nullable = false)
+    private RegistrationType registrationType;
+
+    // description 필드 사용 (이전 논의 반영)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
 
     @Column(nullable = false)
@@ -40,39 +50,74 @@ public class LostPost {
     @Column(nullable = false)
     private String itemName;
 
-    @Column(nullable = false)
-    private String location;
+    // 분실 지역 (동) - lostLocationDong 사용
+    @Column(name = "lost_location_dong", nullable = false)
+    private String lostLocationDong;
 
-    @Column(nullable = false)
-    private String locationDetail;
+    // 상세 위치 - detailedLocation 사용
+    @Column(name = "location_detail", nullable = false) // nullable = false 확인
+    private String detailedLocation;
 
-    // 경도
     @Column(nullable = false, precision = 10)
     private Double longitude;
 
-    // 위도
     @Column(nullable = false, precision = 10)
     private Double latitude;
 
-    @Column(nullable = false)
-    private LocalDateTime lostAt;
+    @Column(name = "lost_date_time_start", nullable = false)
+    private LocalDateTime lostDateTimeStart;
 
-    @ElementCollection
-    @CollectionTable(name = "lost_item_features", joinColumns = @JoinColumn(name = "lost_item_id"))
-    @Column(name = "feature")
-    private List<String> features = new ArrayList<>();
+    @Column(name = "lost_date_time_end", nullable = false)
+    private LocalDateTime lostDateTimeEnd;
 
-    @Column(nullable = false)
+    private String feature1;
+    private String feature2;
+    private String feature3;
+    private String feature4;
+    private String feature5;
+
+    @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal reward;
 
     @Column(name = "instant_settlement", nullable = false)
     private boolean instantSettlement = false;
 
+    @CreationTimestamp
     @Column(name = "created_at", updatable = false, nullable = false)
     private LocalDateTime createdAt;
 
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
+    @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
+
+    // 생성자 파라미터도 description으로 변경되었는지 확인
+    public LostPost(Long memberId, String title, List<String> imageUrls, String description, String category,
+                    String itemName, String lostLocationDong, String detailedLocation,
+                    Double longitude, Double latitude, LocalDateTime lostDateTimeStart,
+                    LocalDateTime lostDateTimeEnd, String feature1, String feature2,
+                    String feature3, String feature4, String feature5, BigDecimal reward,
+                    boolean instantSettlement,  RegistrationType registrationType) {
+        this.memberId = memberId;
+        this.title = title;
+        if (imageUrls != null) {
+            this.imageUrls = new ArrayList<>(imageUrls);
+        }
+        this.description = description; // 필드명과 파라미터명 일치
+        this.category = category;
+        this.itemName = itemName;
+        this.lostLocationDong = lostLocationDong;
+        this.detailedLocation = detailedLocation;
+        this.longitude = longitude;
+        this.latitude = latitude;
+        this.lostDateTimeStart = lostDateTimeStart;
+        this.lostDateTimeEnd = lostDateTimeEnd;
+        this.feature1 = feature1;
+        this.feature2 = feature2;
+        this.feature3 = feature3;
+        this.feature4 = feature4;
+        this.feature5 = feature5;
+        this.reward = reward;
+        this.instantSettlement = instantSettlement;
+        this.registrationType = registrationType;
     }
 }

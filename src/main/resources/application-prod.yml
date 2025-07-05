@@ -26,5 +26,21 @@ logging:
 
 kakao:
   auth:
-    client-id: 4b5c5b6d6f920a0fe945665f2da2648a
+    client-id: YOUR_KAKAO_REST_API_KEY
     redirect-uri: http://15.164.234.32:8080/auth/login/kakao
+
+  local:
+    api-key: YOUR_KAKAO_REST_API_KEY
+    reverse-geocode-url: https://dapi.kakao.com/v2/local/geo/coord2address.json # 좌표->주소 변환 API URL
+
+cloud:
+    aws:
+      credentials:
+       access-key: YOUR_AWS_ACCESS_KEY # IAM 사용자에게 발급받은 액세스 키
+       secret-key: YOUR_AWS_SECRET_KEY # IAM 사용자에게 발급받은 시크릿 키
+      s3:
+        bucket: return-zone
+      region:
+        static: ap-northeast-2
+      stack:
+        auto: false
