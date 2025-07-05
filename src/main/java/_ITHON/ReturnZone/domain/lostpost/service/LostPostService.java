@@ -9,8 +9,9 @@ import _ITHON.ReturnZone.domain.lostpost.exception.LostPostNotFoundException;
 import _ITHON.ReturnZone.domain.lostpost.repository.LostPostRepository;
 import _ITHON.ReturnZone.domain.member.entity.Member;
 import _ITHON.ReturnZone.domain.member.repository.MemberRepository;
-import _ITHON.ReturnZone.domain.lostpost.dto.res.KakaoAddressResponse; // KakaoAddressResponse import (DTO 위치에 따라 경로 확인)
+import _ITHON.ReturnZone.domain.lostpost.dto.res.KakaoAddressResponse;
 import _ITHON.ReturnZone.domain.lostpost.service.KakaoLocalApiService;
+import _ITHON.ReturnZone.global.aws.s3.AwsS3Uploader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -19,7 +20,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -30,6 +34,7 @@ public class LostPostService {
     private final LostPostRepository lostPostRepository;
     private final MemberRepository memberRepository;
     private final KakaoLocalApiService kakaoLocalApiService;
+    private final AwsS3Uploader awsS3Uploader;
 
     // --- 기존 조회 기능 ---
 
@@ -88,10 +93,29 @@ public class LostPostService {
 
     // 1. 게시글 생성 (Create)
     @Transactional
-    public LostPostResponseDto createLostPost(LostPostRequestDto requestDto) {
+    public LostPostResponseDto createLostPost(LostPostRequestDto requestDto, List<MultipartFile> images) {
         log.info("[분실물 게시글 생성 요청]");
 
         Long currentMemberId = 1L;
+
+        // 이미지 개수 제한 로직 추가
+        if (images != null && images.size() > 5) {
+            throw new IllegalArgumentException("이미지는 최대 5개까지만 업로드할 수 있습니다.");
+        }
+
+        // S3 이미지 업로드 및 URL 리스트 생성
+        List<String> imageUrls = new ArrayList<>();
+        if (images != null && !images.isEmpty()) {
+            for (MultipartFile file : images) {
+                try {
+                    String imageUrl = awsS3Uploader.upload(file, "lost-posts"); // "lost-posts" 디렉토리에 업로드
+                    imageUrls.add(imageUrl);
+                } catch (IOException e) {
+                    log.error("이미지 파일 S3 업로드 실패: {}", e.getMessage(), e);
+                    throw new RuntimeException("이미지 파일 업로드에 실패했습니다.", e);
+                }
+            }
+        }
 
         // 상세 위치는 requestDto에서 직접 입력받은 값을 사용합니다.
         String finalDetailedLocation = requestDto.getDetailedLocation();
@@ -133,7 +157,7 @@ public class LostPostService {
         LostPost lostPost = new LostPost(
                 currentMemberId,
                 requestDto.getTitle(),
-                requestDto.getImageUrls(),
+                imageUrls, // S3에서 업로드된 이미지 URL
                 requestDto.getDescription(),
                 requestDto.getCategory(),
                 requestDto.getItemName(),
@@ -149,7 +173,8 @@ public class LostPostService {
                 requestDto.getFeature4(),
                 requestDto.getFeature5(),
                 requestDto.getReward(),
-                requestDto.isInstantSettlement()
+                requestDto.isInstantSettlement(),
+                requestDto.getRegistrationType()
         );
         LostPost savedPost = lostPostRepository.save(lostPost);
 
@@ -162,7 +187,7 @@ public class LostPostService {
 
     // 2. 게시글 수정 (Update)
     @Transactional
-    public LostPostResponseDto updateLostPost(Long lostPostId, LostPostRequestDto requestDto) {
+    public LostPostResponseDto updateLostPost(Long lostPostId, LostPostRequestDto requestDto, List<MultipartFile> images) {
         log.info("[분실물 게시글 수정 요청] lostPostId={}", lostPostId);
 
         LostPost existingPost = lostPostRepository.findById(lostPostId)
@@ -171,6 +196,30 @@ public class LostPostService {
                     return new LostPostNotFoundException("수정할 게시글을 찾을 수 없습니다. ID: " + lostPostId);
                 });
 
+        // 이미지 개수 제한 로직 추가 (수정 시에도 적용)
+        if (images != null && images.size() > 5) {
+            throw new IllegalArgumentException("이미지는 최대 5개까지만 업로드할 수 있습니다.");
+        }
+
+        // S3 이미지 업로드 및 URL 리스트 생성 (수정 시)
+        List<String> updatedImageUrls = new ArrayList<>();
+        if (images != null && !images.isEmpty()) {
+            // 새로운 이미지가 제공되면 기존 이미지를 대체
+            for (MultipartFile file : images) {
+                try {
+                    String imageUrl = awsS3Uploader.upload(file, "lost-posts"); // "lost-posts" 디렉토리에 업로드
+                    updatedImageUrls.add(imageUrl);
+                } catch (IOException e) {
+                    log.error("이미지 파일 S3 업로드 실패 (수정): {}", e.getMessage(), e);
+                    throw new RuntimeException("이미지 파일 업로드에 실패했습니다.", e);
+                }
+            }
+            existingPost.setImageUrls(updatedImageUrls); // 새 이미지 URL로 갱신
+        } else {
+            // 새로운 이미지가 제공되지 않으면, requestDto에 담겨온 이미지 URL 목록을 사용
+            // (프론트엔드에서 기존 이미지를 유지하고 싶을 경우 해당 URL을 requestDto.getImageUrls()에 포함하여 보내야 함)
+            existingPost.setImageUrls(requestDto.getImageUrls());
+        }
 
         // 상세 위치는 사용자가 requestDto에서 입력한 값을 그대로 사용
         String finalDetailedLocation = requestDto.getDetailedLocation();
@@ -210,7 +259,6 @@ public class LostPostService {
 
         // 이제 기존 엔티티의 필드들을 requestDto와 최종 결정된 주소 정보로 업데이트
         existingPost.setTitle(requestDto.getTitle());
-        existingPost.setImageUrls(requestDto.getImageUrls());
         existingPost.setDescription(requestDto.getDescription());
         existingPost.setCategory(requestDto.getCategory());
         existingPost.setItemName(requestDto.getItemName());
@@ -227,6 +275,7 @@ public class LostPostService {
         existingPost.setFeature5(requestDto.getFeature5());
         existingPost.setReward(requestDto.getReward());
         existingPost.setInstantSettlement(requestDto.isInstantSettlement());
+        existingPost.setRegistrationType(requestDto.getRegistrationType());
 
         LostPost updatedPost = lostPostRepository.save(existingPost);
 

@@ -1,5 +1,7 @@
 package _ITHON.ReturnZone.domain.lostpost.dto.req;
 
+import _ITHON.ReturnZone.domain.lostpost.entity.RegistrationType;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,11 +15,15 @@ import java.util.List;
 @Setter
 public class LostPostRequestDto {
 
+    private List<String> imageUrls;
+
+    @NotNull(message = "등록 유형은 필수입니다.")
+    @Schema(description = "게시글 등록 유형", example = "LOST", allowableValues = {"LOST", "FOUND"})
+    private RegistrationType registrationType;
+
     @NotBlank(message = "제목은 필수입니다.")
     @Size(max = 15, message = "제목은 최대 15글자까지 입력 가능합니다.")
     private String title;
-
-    private List<String> imageUrls;
 
     @NotBlank(message = "본문 내용은 필수입니다.") // description 필드에 맞게 수정
     private String description; // 필드명 content -> description으로 변경

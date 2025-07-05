@@ -9,6 +9,7 @@ import lombok.Getter;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import _ITHON.ReturnZone.domain.lostpost.entity.RegistrationType;
 
 @Getter
 @Schema(description = "분실물 미리보기 응답 DTO")
@@ -16,6 +17,13 @@ public class LostPostResponseDto {
 
     @Schema(description = "분실물 ID", example = "1")
     private final Long lostPostId;
+
+
+    @Schema(description = "이미지 URL", example = "https://your-bucket.s3.ap-northeast-2.amazonaws.com/lostPosts/lostpost1.jpg")
+    private final List<String> imageUrls;
+
+    @Schema(description = "게시글 등록 유형", example = "LOST")
+    private final RegistrationType registrationType;
 
     @Schema(description = "분실물 제목", example = "소니 헤드셋")
     private final String title;
@@ -40,9 +48,6 @@ public class LostPostResponseDto {
 
     @Schema(description = "현상금 (원)", example = "10000")
     private final BigDecimal reward;
-
-    @Schema(description = "이미지 URL", example = "https://your-bucket.s3.ap-northeast-2.amazonaws.com/lostPosts/lostpost1.jpg")
-    private final List<String> imageUrls;
 
     @Schema(description = "즉시 정산 가능 여부", example = "true")
     private final boolean instantSettlement;
@@ -71,6 +76,7 @@ public class LostPostResponseDto {
     private final LocalDateTime lostDateTimeStart;
     @Schema(description = "분실 종료 시간", example = "2025-06-25T13:00:00")
     private final LocalDateTime lostDateTimeEnd;
+
 
 
     @Builder
@@ -102,5 +108,6 @@ public class LostPostResponseDto {
 
         this.lostDateTimeStart = lostPost.getLostDateTimeStart();
         this.lostDateTimeEnd = lostPost.getLostDateTimeEnd();
+        this.registrationType = lostPost.getRegistrationType();
     }
 }

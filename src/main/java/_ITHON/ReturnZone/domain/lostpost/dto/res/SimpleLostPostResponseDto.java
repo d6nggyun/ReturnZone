@@ -8,6 +8,7 @@ import lombok.Getter;
 
 import java.math.BigDecimal;
 import java.util.List;
+import _ITHON.ReturnZone.domain.lostpost.entity.RegistrationType;
 
 @Getter
 @Schema(description = "분실물 미리보기 응답 DTO")
@@ -34,6 +35,9 @@ public class SimpleLostPostResponseDto {
     @Schema(description = "즉시 정산 가능 여부", example = "true")
     private final boolean instantSettlement;
 
+    @Schema(description = "게시글 등록 유형", example = "LOST")
+    private final RegistrationType registrationType;
+
     @Builder
     private SimpleLostPostResponseDto(LostPost lostPost) {
         this.lostPostId = lostPost.getId();
@@ -45,5 +49,6 @@ public class SimpleLostPostResponseDto {
                 ? null
                 : lostPost.getImageUrls().get(0);
         this.instantSettlement = lostPost.isInstantSettlement();
+        this.registrationType = lostPost.getRegistrationType();
     }
 }

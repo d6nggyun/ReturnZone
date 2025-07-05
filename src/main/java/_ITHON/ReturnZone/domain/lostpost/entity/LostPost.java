@@ -35,6 +35,11 @@ public class LostPost {
     @Column(name = "image_url")
     private List<String> imageUrls = new ArrayList<>();
 
+    // 등록 유형 필드 추가 (enum 타입, 문자열로 저장)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "registration_type", nullable = false)
+    private RegistrationType registrationType;
+
     // description 필드 사용 (이전 논의 반영)
     @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
@@ -91,7 +96,7 @@ public class LostPost {
                     Double longitude, Double latitude, LocalDateTime lostDateTimeStart,
                     LocalDateTime lostDateTimeEnd, String feature1, String feature2,
                     String feature3, String feature4, String feature5, BigDecimal reward,
-                    boolean instantSettlement) {
+                    boolean instantSettlement,  RegistrationType registrationType) {
         this.memberId = memberId;
         this.title = title;
         if (imageUrls != null) {
@@ -113,5 +118,6 @@ public class LostPost {
         this.feature5 = feature5;
         this.reward = reward;
         this.instantSettlement = instantSettlement;
+        this.registrationType = registrationType;
     }
 }

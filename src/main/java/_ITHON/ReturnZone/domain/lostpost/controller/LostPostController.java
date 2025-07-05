@@ -21,8 +21,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -111,10 +113,13 @@ public class LostPostController {
                                     schema = @Schema(implementation = LostPostResponseDto.class))),
                     @ApiResponse(responseCode = "400", description = "유효성 검사 실패 또는 잘못된 요청", content = @Content)
             })
-    @PostMapping
-    public ResponseEntity<LostPostResponseDto> createLostPost(@Valid @RequestBody LostPostRequestDto requestDto) {
-        LostPostResponseDto createdPost = lostPostService.createLostPost(requestDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdPost); // 201 Created 응답
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<LostPostResponseDto> createLostPost(
+            @Valid @RequestPart("requestDto") LostPostRequestDto requestDto,
+            @RequestPart(value = "images", required = false) List<MultipartFile> images) {
+
+        LostPostResponseDto createdPost = lostPostService.createLostPost(requestDto, images);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdPost);
     }
 
     // 2. 게시글 수정 (PUT /api/lostposts/{lostPostId})
@@ -126,10 +131,14 @@ public class LostPostController {
                     @ApiResponse(responseCode = "400", description = "유효성 검사 실패 또는 잘못된 요청", content = @Content),
                     @ApiResponse(responseCode = "404", description = "게시글을 찾을 수 없음", content = @Content)
             })
-    @PutMapping("/{lostPostId}")
-    public ResponseEntity<LostPostResponseDto> updateLostPost(@PathVariable Long lostPostId, @Valid @RequestBody LostPostRequestDto requestDto) {
-        LostPostResponseDto updatedPost = lostPostService.updateLostPost(lostPostId, requestDto);
-        return ResponseEntity.ok(updatedPost); // 200 OK 응답
+    @PutMapping(value = "/{lostPostId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<LostPostResponseDto> updateLostPost(
+            @PathVariable Long lostPostId,
+            @Valid @RequestPart("requestDto") LostPostRequestDto requestDto,
+            @RequestPart(value = "images", required = false) List<MultipartFile> images) {
+
+        LostPostResponseDto updatedPost = lostPostService.updateLostPost(lostPostId, requestDto, images);
+        return ResponseEntity.ok(updatedPost);
     }
 
     // 3. 게시글 삭제 (DELETE /api/lostposts/{lostPostId})
