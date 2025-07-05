@@ -26,11 +26,11 @@ logging:
 
 kakao:
   auth:
-    client-id: 4b5c5b6d6f920a0fe945665f2da2648a
-    redirect-uri: http://localhost:8080/auth/login/kakao
+    client-id: YOUR_KAKAO_REST_API_KEY
+    redirect-uri: http://15.164.234.32:8080/auth/login/kakao
 
   local:
-    api-key: 4b5c5b6d6f920a0fe945665f2da2648a
+    api-key: YOUR_KAKAO_REST_API_KEY
     reverse-geocode-url: https://dapi.kakao.com/v2/local/geo/coord2address.json # 좌표->주소 변환 API URL
 
 cloud:

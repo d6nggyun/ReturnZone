@@ -18,9 +18,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -89,14 +93,10 @@ public class LostPostService {
         return LostPostResponseDto.builder().lostPost(lostPost).nickname(member.getNickname()).build();
     }
 
-    // --- 새로 추가되는 CRUD 기능 ---
-
     // 1. 게시글 생성 (Create)
     @Transactional
-    public LostPostResponseDto createLostPost(LostPostRequestDto requestDto, List<MultipartFile> images) {
+    public LostPostResponseDto createLostPost(LostPostRequestDto requestDto, List<MultipartFile> images, Long currentMemberId) {
         log.info("[분실물 게시글 생성 요청]");
-
-        Long currentMemberId = 1L;
 
         // 이미지 개수 제한 로직 추가
         if (images != null && images.size() > 5) {
@@ -187,7 +187,7 @@ public class LostPostService {
 
     // 2. 게시글 수정 (Update)
     @Transactional
-    public LostPostResponseDto updateLostPost(Long lostPostId, LostPostRequestDto requestDto, List<MultipartFile> images) {
+    public LostPostResponseDto updateLostPost(Long lostPostId, LostPostRequestDto requestDto, List<MultipartFile> images, Long currentMemberId) {
         log.info("[분실물 게시글 수정 요청] lostPostId={}", lostPostId);
 
         LostPost existingPost = lostPostRepository.findById(lostPostId)
@@ -195,6 +195,13 @@ public class LostPostService {
                     log.warn("[분실물 수정 실패] 분실물 없음: lostPostId={}", lostPostId);
                     return new LostPostNotFoundException("수정할 게시글을 찾을 수 없습니다. ID: " + lostPostId);
                 });
+
+        // --- 본인 확인 로직  ---
+        if (!existingPost.getMemberId().equals(currentMemberId)) {
+            log.warn("[분실물 수정 실패] 권한 없음: lostPostId={}, 요청자 memberId={}", lostPostId, currentMemberId);
+            // AccessDeniedException 대신 일반 RuntimeException 사용 또는 Custom Exception 정의
+            throw new RuntimeException("해당 게시글을 수정할 권한이 없습니다.");
+        }
 
         // 이미지 개수 제한 로직 추가 (수정 시에도 적용)
         if (images != null && images.size() > 5) {
@@ -288,7 +295,7 @@ public class LostPostService {
 
     // 3. 게시글 삭제 (Delete)
     @Transactional
-    public void deleteLostPost(Long lostPostId) {
+    public void deleteLostPost(Long lostPostId, Long currentMemberId) { // currentMemberId 파라미터 추가
         log.info("[분실물 게시글 삭제 요청] lostPostId={}", lostPostId);
 
         LostPost lostPost = lostPostRepository.findById(lostPostId)
@@ -297,7 +304,19 @@ public class LostPostService {
                     return new LostPostNotFoundException("삭제할 게시글을 찾을 수 없습니다. ID: " + lostPostId);
                 });
 
+        // --- 본인 확인 로직 ---
+        if (!lostPost.getMemberId().equals(currentMemberId)) {
+            log.warn("[분실물 삭제 실패] 권한 없음: lostPostId={}, 요청자 memberId={}", lostPostId, currentMemberId);
+            // Spring Security를 사용하지 않으므로 RuntimeException 사용
+            throw new RuntimeException("해당 게시글을 삭제할 권한이 없습니다.");
+        }
+        // --- 본인 확인 로직 끝 ---
+
         lostPostRepository.delete(lostPost);
         log.info("[분실물 게시글 삭제 성공] lostPostId={}", lostPostId);
     }
+
+    // Spring Security를 사용하지 않으므로 이 메서드는 더 이상 필요 없습니다.
+    // 사용자 ID는 컨트롤러에서 받아서 서비스 메서드로 직접 전달해야 합니다.
+    // private Long getCurrentMemberId() { /* ... */ }
 }
