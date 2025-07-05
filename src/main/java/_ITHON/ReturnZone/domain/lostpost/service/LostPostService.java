@@ -28,6 +28,7 @@ import org.springframework.security.access.AccessDeniedException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -313,7 +314,18 @@ public class LostPostService {
         log.info("[분실물 게시글 삭제 성공] lostPostId={}", lostPostId);
     }
 
-    // Spring Security를 사용하지 않으므로 이 메서드는 더 이상 필요 없습니다.
-    // 사용자 ID는 컨트롤러에서 받아서 서비스 메서드로 직접 전달해야 합니다.
-    // private Long getCurrentMemberId() { /* ... */ }
+    // searchPosts 메서드 추가
+    @Transactional(readOnly = true)
+    public List<SimpleLostPostResponseDto> searchPosts(String keyword, boolean includeReturned) {
+        List<LostPost> posts;
+        if (includeReturned) {
+            posts = lostPostRepository.findByTitleContaining(keyword);
+        } else {
+            posts = lostPostRepository.findByTitleContainingAndNotReturned(keyword);
+        }
+        // 여기를 수정합니다.
+        return posts.stream()
+                .map(lostPost -> SimpleLostPostResponseDto.builder().lostPost(lostPost).build()) // <-- 이 부분 수정
+                .collect(Collectors.toList());
+    }
 }
