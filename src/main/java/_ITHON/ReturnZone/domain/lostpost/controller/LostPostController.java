@@ -4,6 +4,7 @@ import _ITHON.ReturnZone.domain.lostpost.dto.req.LostPostRequestDto;
 import _ITHON.ReturnZone.domain.lostpost.dto.res.KakaoAddressResponse;
 import _ITHON.ReturnZone.domain.lostpost.dto.res.LostPostResponseDto;
 import _ITHON.ReturnZone.domain.lostpost.dto.res.SimpleLostPostResponseDto;
+import _ITHON.ReturnZone.domain.lostpost.entity.RegistrationType;
 import _ITHON.ReturnZone.domain.lostpost.entity.SortType;
 import _ITHON.ReturnZone.domain.lostpost.service.KakaoLocalApiService;
 import _ITHON.ReturnZone.domain.lostpost.service.LostPostService;
@@ -48,6 +49,9 @@ public class LostPostController {
     )
     @GetMapping
     public ResponseEntity<Slice<SimpleLostPostResponseDto>> getLostPostList(
+            @Parameter(description = "주인 찾아요 / 분실했어요", example = "LOST / FOUND")
+            @RequestParam(required = false) RegistrationType registrationType,
+
             @Parameter(description = "정렬 방식<br>• **LATEST**: 최신순<br>• **DISTANCE**: 거리순(위·경도 필수)", schema = @Schema(defaultValue = "LATEST", allowableValues = {"LATEST","DISTANCE"}))
             @RequestParam(defaultValue = "LATEST") SortType sort,
 
@@ -66,7 +70,7 @@ public class LostPostController {
             @ParameterObject
             @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable) {
-        return ResponseEntity.status(HttpStatus.OK).body(lostPostService.getLostPostList(sort, latitude, longitude, instant, category, pageable));
+        return ResponseEntity.status(HttpStatus.OK).body(lostPostService.getLostPostList(registrationType, sort, latitude, longitude, instant, category, pageable));
     }
 
     @Operation(summary = "분실물 정보 상세 조회", description = "분실물의 상세 정보를 조회합니다.",
