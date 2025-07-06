@@ -98,8 +98,7 @@ public class ChatController {
     public ResponseEntity<MessageResponseDto> uploadMessage(
             @PathVariable Long roomId,
             @RequestHeader("X-USER-ID") Long senderId,
-            @RequestPart(required = false) String content,
             @RequestPart("image") MultipartFile imageFile) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(chatService.sendMessage(roomId, senderId, content, imageFile));
+        return ResponseEntity.status(HttpStatus.CREATED).body(chatService.sendMessage(roomId, senderId, null, imageFile));
     }
 }

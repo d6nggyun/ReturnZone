@@ -9,6 +9,7 @@ import _ITHON.ReturnZone.domain.chat.repository.ChatRoomRepository;
 import _ITHON.ReturnZone.domain.chat.repository.MessageRepository;
 import _ITHON.ReturnZone.domain.member.entity.Member;
 import _ITHON.ReturnZone.domain.member.repository.MemberRepository;
+import _ITHON.ReturnZone.global.aws.s3.AwsS3Uploader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +33,7 @@ public class ChatService {
     private final ChatRoomRepository chatRoomRepository;
     private final MessageRepository messageRepository;
     private final MemberRepository memberRepository;
+    private final AwsS3Uploader awsS3Uploader;
 
     @Transactional
     public MessageResponseDto sendMessage(Long roomId, Long senderId, String content, MultipartFile image) {
@@ -39,10 +42,12 @@ public class ChatService {
 
         String imageUrl = null;
         if (image != null && !image.isEmpty()) {
-            // 파일 업로드 로직 (예: S3에 업로드)
-            // imageUrl = fileUploadService.uploadFile(file);
-            log.info("[파일 업로드] 파일 이름: {}", image.getOriginalFilename());
-            // 실제 업로드 로직은 구현 필요
+            try {
+                imageUrl = awsS3Uploader.upload(image, "chats");
+            } catch (IOException e) {
+                log.error("이미지 파일 S3 업로드 실패: {}", e.getMessage(), e);
+                throw new RuntimeException("이미지 파일 업로드에 실패했습니다.", e);
+            }
         }
 
         // 메시지 저장
