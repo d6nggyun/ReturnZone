@@ -51,7 +51,7 @@ public class ChatController {
             }
     )
     @GetMapping("/rooms/{roomId}/messages")
-    public ResponseEntity<Slice<MessageResponseDto>> getChats(@PathVariable Long roomId,
+    public ResponseEntity<Slice<MessageResponseDto>> getChats(@RequestHeader("X-USER-ID") Long myId, @PathVariable Long roomId,
                                           @PageableDefault(size = 30, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.status(HttpStatus.OK).body(chatService.getChats(roomId, pageable));
     }
@@ -84,7 +84,7 @@ public class ChatController {
 
     @Operation(summary = "채팅방 읽음 처리", description = "채팅방 읽음 처리를 합니다. 해당 채팅방의 읽음 상태를 업데이트합니다.",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "채팅방 읽음 처리 성공")
+                    @ApiResponse(responseCode = "204", description = "채팅방 읽음 처리 성공")
             }
     )
     @PostMapping("/rooms/{roomId}/read")
@@ -94,6 +94,14 @@ public class ChatController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "채팅 이미지 전송", description = "이미지를 채팅으로 전송합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "채팅 이미지 전송 성공",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = MessageResponseDto.class))
+                    )
+            }
+    )
     @PostMapping(value = "/rooms/{roomId}/messages", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MessageResponseDto> uploadMessage(
             @PathVariable Long roomId,
