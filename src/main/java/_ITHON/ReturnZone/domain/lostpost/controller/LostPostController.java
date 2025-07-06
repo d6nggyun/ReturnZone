@@ -9,6 +9,7 @@ import _ITHON.ReturnZone.domain.lostpost.service.KakaoLocalApiService;
 import _ITHON.ReturnZone.domain.lostpost.service.LostPostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -157,5 +158,25 @@ public class LostPostController {
                                                @RequestHeader("X-USER-ID") Long memberId) { // <--- 메서드 파라미터로 memberId를 받습니다.) {
         lostPostService.deleteLostPost(lostPostId, memberId);
         return ResponseEntity.noContent().build(); // 204 No Content 응답 (성공적으로 삭제되었지만 반환할 내용이 없음)
+
+    }
+    // --- 검색 기능 추가 ---
+    @Operation(summary = "분실물 게시글 검색", description = "게시글 제목으로 분실물을 검색합니다. 반환 완료 여부에 따라 필터링할 수 있습니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "검색 성공",
+                            content = @Content(mediaType = "application/json",
+                                    array = @ArraySchema(schema = @Schema(implementation = SimpleLostPostResponseDto.class)))),
+                    @ApiResponse(responseCode = "400", description = "잘못된 요청 (키워드 누락 등)", content = @Content)
+            }
+    )
+    @GetMapping("/search") // 검색 API 엔드포인트
+    public ResponseEntity<List<SimpleLostPostResponseDto>> searchLostPosts(
+            @Parameter(description = "검색할 키워드 (게시글 제목에 포함)", required = true, example = "아이폰")
+            @RequestParam String keyword,
+            @Parameter(description = "반환 완료된 게시물 포함 여부 (true: 포함, false: 미포함)", example = "false")
+            @RequestParam(defaultValue = "false") boolean includeReturned) {
+
+        List<SimpleLostPostResponseDto> searchResults = lostPostService.searchPosts(keyword, includeReturned);
+        return ResponseEntity.ok(searchResults);
     }
 }

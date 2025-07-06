@@ -7,7 +7,17 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 public interface LostPostRepository extends JpaRepository<LostPost, Long> {
+
+    // 반환 완료 안 된 게시물 중 제목에 키워드 포함된 게시물 조회
+    @Query("SELECT l FROM LostPost l WHERE l.title LIKE %:keyword% AND l.isReturned = false")
+    List<LostPost> findByTitleContainingAndNotReturned(@Param("keyword") String keyword);
+
+    // 반환 완료 여부 상관없이 제목에 키워드 포함된 게시물 조회
+    @Query("SELECT l FROM LostPost l WHERE l.title LIKE %:keyword%")
+    List<LostPost> findByTitleContaining(@Param("keyword") String keyword);
 
     @Query(value = """
     SELECT lp.*, 
