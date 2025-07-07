@@ -51,9 +51,9 @@ public class ChatController {
             }
     )
     @GetMapping("/rooms/{roomId}/messages")
-    public ResponseEntity<Slice<MessageResponseDto>> getChats(@PathVariable Long roomId,
+    public ResponseEntity<Slice<MessageResponseDto>> getChats(@RequestHeader("X-USER-ID") Long myId, @PathVariable Long roomId,
                                           @PageableDefault(size = 30, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        return ResponseEntity.status(HttpStatus.OK).body(chatService.getChats(roomId, pageable));
+        return ResponseEntity.status(HttpStatus.OK).body(chatService.getChats(myId, roomId, pageable));
     }
 
     @Operation(summary = "채팅방 생성", description = "채팅방을 생성합니다.",
@@ -99,6 +99,6 @@ public class ChatController {
             @PathVariable Long roomId,
             @RequestHeader("X-USER-ID") Long senderId,
             @RequestPart("image") MultipartFile imageFile) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(chatService.sendMessage(roomId, senderId, null, imageFile));
+        return ResponseEntity.status(HttpStatus.CREATED).body(chatService.sendMessage(roomId, senderId, "", imageFile));
     }
 }

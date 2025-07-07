@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,6 +35,7 @@ public class ChatService {
     private final MessageRepository messageRepository;
     private final MemberRepository memberRepository;
     private final AwsS3Uploader awsS3Uploader;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Transactional
     public MessageResponseDto sendMessage(Long roomId, Long senderId, String content, MultipartFile image) {
@@ -57,10 +59,14 @@ public class ChatService {
         // 방 메타 업데이트
         chatRoomRepository.updateLastMessageAt(roomId, message.getCreatedAt());
 
+        // 구독중인 클라이언트에게 push
+        MessageResponseDto messageResponseDto = MessageResponseDto.builder().message(message).build();
+        messagingTemplate.convertAndSend("/topic/chat/" + roomId, messageResponseDto);
+
         log.info("[메시지 전송 성공] 채팅방 ID: {}, 메시지 ID: {}", roomId, message.getId());
 
         // 응답 DTO
-        return MessageResponseDto.builder().message(message).build();
+        return messageResponseDto;
     }
 
     @Transactional(readOnly = true)
@@ -111,9 +117,18 @@ public class ChatService {
     }
 
     @Transactional(readOnly = true)
-    public Slice<MessageResponseDto> getChats(Long roomId, Pageable pageable) {
+    public Slice<MessageResponseDto> getChats(Long myId, Long roomId, Pageable pageable) {
 
         log.info("[채팅 목록 조회 요청] 채팅방 ID: {}", roomId);
+
+        ChatRoom room = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> {
+                    log.warn("[채팅방 조회 실패] 존재하지 않는 채팅방 ID: {}", roomId);
+                    return new IllegalArgumentException("존재하지 않는 채팅방");
+                });
+        if (!room.isParticipant(myId)) {
+            throw new IllegalArgumentException("채팅방에 대한 권한이 없습니다.");
+        }
 
         Slice<Message> messageSlice =
                 messageRepository.findByChatRoomIdOrderByCreatedAtDesc(roomId, pageable);

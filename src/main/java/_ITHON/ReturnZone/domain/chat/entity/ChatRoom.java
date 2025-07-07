@@ -66,4 +66,8 @@ public class ChatRoom {
         else
             this.lastReadAtGreater = LocalDateTime.now();
     }
+
+    public boolean isParticipant(Long memberId) {
+        return smallerMemberId.equals(memberId) || greaterMemberId.equals(memberId);
+    }
 }
