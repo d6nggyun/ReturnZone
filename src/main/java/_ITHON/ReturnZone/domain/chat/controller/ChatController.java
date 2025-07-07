@@ -10,7 +10,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -35,8 +38,8 @@ public class ChatController {
     )
     @GetMapping("/rooms")
     public ResponseEntity<Slice<ChatRoomResponseDto>> getChatRooms(@RequestHeader("X-USER-ID") Long myId,
-                                                                   @RequestParam(defaultValue = "0") int page) {
-        return ResponseEntity.status(HttpStatus.OK).body(chatService.getChatRooms(myId, page));
+                                                   @PageableDefault(size = 20, sort = "lastMessageAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.status(HttpStatus.OK).body(chatService.getChatRooms(myId, pageable));
     }
 
     @Operation(summary = "채팅 목록 조회", description = "채팅 목록을 조회합니다.",
@@ -49,8 +52,8 @@ public class ChatController {
     )
     @GetMapping("/rooms/{roomId}/messages")
     public ResponseEntity<Slice<MessageResponseDto>> getChats(@RequestHeader("X-USER-ID") Long myId, @PathVariable Long roomId,
-                                                              @RequestParam(defaultValue = "0") int page) {
-        return ResponseEntity.status(HttpStatus.OK).body(chatService.getChats(roomId, page));
+                                          @PageableDefault(size = 30, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.status(HttpStatus.OK).body(chatService.getChats(myId, roomId, pageable));
     }
 
     @Operation(summary = "채팅방 생성", description = "채팅방을 생성합니다.",
@@ -81,7 +84,7 @@ public class ChatController {
 
     @Operation(summary = "채팅방 읽음 처리", description = "채팅방 읽음 처리를 합니다. 해당 채팅방의 읽음 상태를 업데이트합니다.",
             responses = {
-                    @ApiResponse(responseCode = "204", description = "채팅방 읽음 처리 성공")
+                    @ApiResponse(responseCode = "200", description = "채팅방 읽음 처리 성공")
             }
     )
     @PostMapping("/rooms/{roomId}/read")
@@ -91,19 +94,11 @@ public class ChatController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "채팅 이미지 전송", description = "이미지를 채팅으로 전송합니다.",
-            responses = {
-                    @ApiResponse(responseCode = "201", description = "채팅 이미지 전송 성공",
-                            content = @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = MessageResponseDto.class))
-                    )
-            }
-    )
     @PostMapping(value = "/rooms/{roomId}/messages", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MessageResponseDto> uploadMessage(
             @PathVariable Long roomId,
             @RequestHeader("X-USER-ID") Long senderId,
             @RequestPart("image") MultipartFile imageFile) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(chatService.sendMessage(roomId, senderId, null, imageFile));
+        return ResponseEntity.status(HttpStatus.CREATED).body(chatService.sendMessage(roomId, senderId, "", imageFile));
     }
 }
