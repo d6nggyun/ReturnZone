@@ -82,6 +82,10 @@ public class LostPost {
     @Column(name = "instant_settlement", nullable = false)
     private boolean instantSettlement = false;
 
+    // 검색기능 구현을 위한 필드
+    @Column(name = "is_returned", nullable = false)
+    private boolean isReturned = false; // 게시물이 반환 완료되었는지 여부 (기본값: false)
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false, nullable = false)
     private LocalDateTime createdAt;

@@ -1,16 +1,16 @@
 package _ITHON.ReturnZone.domain.lostpost.service;
 
 import _ITHON.ReturnZone.domain.lostpost.dto.req.LostPostRequestDto;
+import _ITHON.ReturnZone.domain.lostpost.dto.res.KakaoAddressResponse;
 import _ITHON.ReturnZone.domain.lostpost.dto.res.LostPostResponseDto;
 import _ITHON.ReturnZone.domain.lostpost.dto.res.SimpleLostPostResponseDto;
 import _ITHON.ReturnZone.domain.lostpost.entity.LostPost;
+import _ITHON.ReturnZone.domain.lostpost.entity.RegistrationType;
 import _ITHON.ReturnZone.domain.lostpost.entity.SortType;
 import _ITHON.ReturnZone.domain.lostpost.exception.LostPostNotFoundException;
 import _ITHON.ReturnZone.domain.lostpost.repository.LostPostRepository;
 import _ITHON.ReturnZone.domain.member.entity.Member;
 import _ITHON.ReturnZone.domain.member.repository.MemberRepository;
-import _ITHON.ReturnZone.domain.lostpost.dto.res.KakaoAddressResponse;
-import _ITHON.ReturnZone.domain.lostpost.service.KakaoLocalApiService;
 import _ITHON.ReturnZone.global.aws.s3.AwsS3Uploader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,16 +18,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.security.access.AccessDeniedException;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -39,10 +37,8 @@ public class LostPostService {
     private final KakaoLocalApiService kakaoLocalApiService;
     private final AwsS3Uploader awsS3Uploader;
 
-    // --- 기존 조회 기능 ---
-
     @Transactional(readOnly = true)
-    public Slice<SimpleLostPostResponseDto> getLostPostList(SortType sort, Double lat, Double lng,
+    public Slice<SimpleLostPostResponseDto> getLostPostList(RegistrationType registrationType, SortType sort, Double lat, Double lng,
                                                             Boolean instant, String category, Pageable pageable) {
 
         log.info("[분실물 목록 조회] page={}, size={}", pageable.getPageNumber(), pageable.getPageSize());
@@ -57,10 +53,11 @@ public class LostPostService {
                 throw new IllegalArgumentException("거리순 정렬에는 latitude/longitude 값이 필요합니다.");
             }
             Pageable distancePageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
-            lostPostSlice = lostPostRepository.findByFilterOrderByDistance(lat, lng, category, instant, distancePageable);
+            String typeStr = registrationType == null ? null : registrationType.name();
+            lostPostSlice = lostPostRepository.findByFilterOrderByDistance(typeStr, lat, lng, category, instant, distancePageable);
         } else {
             // 기본 최신순 정렬
-            lostPostSlice = lostPostRepository.findByFilter(category, instant, finalPageable);
+            lostPostSlice = lostPostRepository.findByFilter(registrationType, category, instant, finalPageable);
         }
 
         log.info("[분실물 목록 조회 성공]");
@@ -87,7 +84,7 @@ public class LostPostService {
 
         log.info("[분실물 정보 상세 조회 성공]");
 
-        return LostPostResponseDto.builder().lostPost(lostPost).nickname(member.getNickname()).build();
+        return LostPostResponseDto.builder().lostPost(lostPost).member(member).build();
     }
 
     // 1. 게시글 생성 (Create)
@@ -179,7 +176,7 @@ public class LostPostService {
                 .orElseThrow(() -> new IllegalArgumentException("작성 회원 정보가 존재하지 않습니다.")); // TODO: 실제 회원 조회 로직에 맞게 수정
 
         log.info("[분실물 게시글 생성 성공] lostPostId={}", savedPost.getId());
-        return LostPostResponseDto.builder().lostPost(savedPost).nickname(member.getNickname()).build();
+        return LostPostResponseDto.builder().lostPost(savedPost).member(member).build();
     }
 
     // 2. 게시글 수정 (Update)
@@ -287,7 +284,7 @@ public class LostPostService {
                 .orElseThrow(() -> new IllegalArgumentException("작성 회원 정보가 존재하지 않습니다."));
 
         log.info("[분실물 게시글 수정 성공] lostPostId={}", updatedPost.getId());
-        return LostPostResponseDto.builder().lostPost(updatedPost).nickname(member.getNickname()).build();
+        return LostPostResponseDto.builder().lostPost(updatedPost).member(member).build();
     }
 
     // 3. 게시글 삭제 (Delete)
@@ -313,7 +310,18 @@ public class LostPostService {
         log.info("[분실물 게시글 삭제 성공] lostPostId={}", lostPostId);
     }
 
-    // Spring Security를 사용하지 않으므로 이 메서드는 더 이상 필요 없습니다.
-    // 사용자 ID는 컨트롤러에서 받아서 서비스 메서드로 직접 전달해야 합니다.
-    // private Long getCurrentMemberId() { /* ... */ }
+    // searchPosts 메서드 추가
+    @Transactional(readOnly = true)
+    public List<SimpleLostPostResponseDto> searchPosts(String keyword, boolean includeReturned) {
+        List<LostPost> posts;
+        if (includeReturned) {
+            posts = lostPostRepository.findByTitleContaining(keyword);
+        } else {
+            posts = lostPostRepository.findByTitleContainingAndNotReturned(keyword);
+        }
+        // 여기를 수정합니다.
+        return posts.stream()
+                .map(lostPost -> SimpleLostPostResponseDto.builder().lostPost(lostPost).build()) // <-- 이 부분 수정
+                .collect(Collectors.toList());
+    }
 }
