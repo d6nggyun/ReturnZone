@@ -10,10 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -38,8 +35,8 @@ public class ChatController {
     )
     @GetMapping("/rooms")
     public ResponseEntity<Slice<ChatRoomResponseDto>> getChatRooms(@RequestHeader("X-USER-ID") Long myId,
-                                                   @PageableDefault(size = 20, sort = "lastMessageAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        return ResponseEntity.status(HttpStatus.OK).body(chatService.getChatRooms(myId, pageable));
+                                                                   @RequestParam(defaultValue = "0") int page) {
+        return ResponseEntity.status(HttpStatus.OK).body(chatService.getChatRooms(myId, page));
     }
 
     @Operation(summary = "채팅 목록 조회", description = "채팅 목록을 조회합니다.",
@@ -52,8 +49,8 @@ public class ChatController {
     )
     @GetMapping("/rooms/{roomId}/messages")
     public ResponseEntity<Slice<MessageResponseDto>> getChats(@RequestHeader("X-USER-ID") Long myId, @PathVariable Long roomId,
-                                          @PageableDefault(size = 30, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        return ResponseEntity.status(HttpStatus.OK).body(chatService.getChats(myId, roomId, pageable));
+                                                              @RequestParam(defaultValue = "0") int page) {
+        return ResponseEntity.status(HttpStatus.OK).body(chatService.getChats(myId, roomId, page));
     }
 
     @Operation(summary = "채팅방 생성", description = "채팅방을 생성합니다.",
