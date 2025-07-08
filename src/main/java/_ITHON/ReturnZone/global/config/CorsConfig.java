@@ -17,7 +17,7 @@ public class CorsConfig {
 
         configuration.setAllowCredentials(true);
         configuration.setAllowedOriginPatterns(List.of(
-                "http://15.164.234.32:*",
+                "https://15.164.234.32.nip.io:*",
                 "http://localhost:*",
                 "http://127.0.0.1:*"
         ));
