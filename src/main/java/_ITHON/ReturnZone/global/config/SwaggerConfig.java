@@ -22,7 +22,7 @@ public class SwaggerConfig {
 
         // 서버 정보
         Server server = new Server()
-                .url("http://15.164.234.32:8080")
+                .url("https://15.164.234.32.nip.io")
                 .description("배포 서버");
 
         Server localServer = new Server()
