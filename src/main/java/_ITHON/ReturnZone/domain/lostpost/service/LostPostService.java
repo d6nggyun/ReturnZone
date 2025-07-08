@@ -14,6 +14,7 @@ import _ITHON.ReturnZone.domain.member.repository.MemberRepository;
 import _ITHON.ReturnZone.global.aws.s3.AwsS3Uploader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.text.similarity.JaroWinklerDistance;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -24,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -82,9 +84,32 @@ public class LostPostService {
                     return new IllegalArgumentException("작성 회원 정보가 존재하지 않습니다.");
                 });
 
+        // 비슷한 글 후보
+        Slice<LostPost> candidates =
+                lostPostRepository.findTop50ByCategoryAndIsReturnedFalse(
+                        lostPost.getCategory(), PageRequest.of(0, 20));
+
+        log.info("[비슷한 글 조회 성공]");
+
+        // Jaro-Winkler 유사도 계산
+        // Apache Commons Text가 제공하는 JaroWinklerDistance 객체
+        // 두 문자열의 “Jaro-Winkler 거리” 값을 0.0 ~ 1.0 사이 실수로 반환. 1.0 → 완전히 같은 문자열 0.0 → 완전히 다른 문자열
+        JaroWinklerDistance jw = new JaroWinklerDistance();
+        List<SimpleLostPostResponseDto> simpleLostPostResponseDtos = candidates.stream()
+                // 자신은 목록에서 제외.
+                .filter(p -> !p.getId().equals(lostPostId))
+                // 각 후보의 itemName 과 현재 글의 itemName을 비교하여 유사도 점수 계산
+                .sorted(Comparator.comparingDouble(
+                                (LostPost p) -> jw.apply(lostPost.getItemName(), p.getItemName()))
+                        .reversed())
+                // 가장 유사한 글 4개만 선택
+                .limit(4)
+                .map(p -> SimpleLostPostResponseDto.builder().lostPost(p).build())
+                .toList();
+
         log.info("[분실물 정보 상세 조회 성공]");
 
-        return LostPostResponseDto.builder().lostPost(lostPost).member(member).build();
+        return LostPostResponseDto.builder().lostPost(lostPost).member(member).similarLostPosts(simpleLostPostResponseDtos).build();
     }
 
     // 1. 게시글 생성 (Create)

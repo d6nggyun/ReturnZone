@@ -58,4 +58,12 @@ public interface LostPostRepository extends JpaRepository<LostPost, Long> {
                                  @Param("category") String category,
                                  @Param("instant") Boolean instant,
                                  Pageable pageable);
+
+    @Query("""
+        SELECT lp
+        FROM   LostPost lp
+        WHERE  lp.category = :category
+            AND  lp.isReturned = false
+    """)
+    Slice<LostPost> findTop50ByCategoryAndIsReturnedFalse(@Param("category") String category, Pageable pageable);
 }
