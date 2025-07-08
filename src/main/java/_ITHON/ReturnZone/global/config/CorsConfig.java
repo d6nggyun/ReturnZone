@@ -19,6 +19,7 @@ public class CorsConfig {
         configuration.setAllowedOriginPatterns(List.of(
                 "https://15.164.234.32.nip.io",
                 "http://localhost:3000",
+                "http://localhost:5173",
                 "http://127.0.0.1",
                 "https://returnzone.netlify.app"
         ));
