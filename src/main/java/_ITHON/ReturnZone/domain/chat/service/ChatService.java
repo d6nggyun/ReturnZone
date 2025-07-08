@@ -12,9 +12,7 @@ import _ITHON.ReturnZone.domain.member.repository.MemberRepository;
 import _ITHON.ReturnZone.global.aws.s3.AwsS3Uploader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.SliceImpl;
+import org.springframework.data.domain.*;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,9 +68,11 @@ public class ChatService {
     }
 
     @Transactional(readOnly = true)
-    public Slice<ChatRoomResponseDto> getChatRooms(Long memberId, Pageable pageable) {
+    public Slice<ChatRoomResponseDto> getChatRooms(Long memberId, int page) {
 
         log.info("[채팅방 목록 조회 요청] 회원 ID: {}", memberId);
+
+        Pageable pageable = PageRequest.of(page, 20, Sort.by(Sort.Direction.DESC, "lastMessageAt"));
 
         Slice<ChatRoom> chatRoomSlice = chatRoomRepository.findRoomsWithOpponent(memberId, pageable);
 
@@ -117,9 +117,11 @@ public class ChatService {
     }
 
     @Transactional(readOnly = true)
-    public Slice<MessageResponseDto> getChats(Long myId, Long roomId, Pageable pageable) {
+    public Slice<MessageResponseDto> getChats(Long myId, Long roomId, int page) {
 
         log.info("[채팅 목록 조회 요청] 채팅방 ID: {}", roomId);
+
+        Pageable pageable = PageRequest.of(page, 30, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         ChatRoom room = chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> {
