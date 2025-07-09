@@ -66,4 +66,6 @@ public interface LostPostRepository extends JpaRepository<LostPost, Long> {
             AND  lp.isReturned = false
     """)
     Slice<LostPost> findTop50ByCategoryAndIsReturnedFalse(@Param("category") String category, Pageable pageable);
+
+    Slice<LostPost> findByMemberId(Long memberId, Pageable pageable);
 }
