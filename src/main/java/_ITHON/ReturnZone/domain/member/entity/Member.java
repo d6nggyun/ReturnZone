@@ -56,9 +56,9 @@ public class Member {
         this.provider = "local"; // <-- 회원가입 시 기본값을 "local"로 설정
     }
 
-    public void updateMyPage(UpdateMyPageRequestDto updateMyPageRequestDto, String imageUrl) {
+    public void updateMyPage(UpdateMyPageRequestDto updateMyPageRequestDto, String encodedPassword, String imageUrl) {
         this.nickname = updateMyPageRequestDto.getNickname();
-        this.password = updateMyPageRequestDto.getPassword();
+        this.password = encodedPassword;
         this.imageUrl = imageUrl != null ? imageUrl : this.imageUrl;
         this.location = updateMyPageRequestDto.getLocation();
         this.locationDetail = updateMyPageRequestDto.getLocationDetail();
