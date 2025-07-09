@@ -24,6 +24,9 @@ public class ChatRoom {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "lost_post_id", nullable = false)
+    private Long lostPostId;
+
     @Column(name = "smaller_member_id", nullable = false)
     private Long smallerMemberId;
 
@@ -39,7 +42,7 @@ public class ChatRoom {
     @Column(name = "last_read_at_greater")
     private LocalDateTime lastReadAtGreater;
 
-    public static ChatRoom of(Long aId, Long bId) {
+    public static ChatRoom of(Long aId, Long bId, Long lostPostId) {
         ChatRoom room = new ChatRoom();
         if (aId < bId) {
             room.smallerMemberId = aId;
@@ -49,6 +52,7 @@ public class ChatRoom {
             room.greaterMemberId = aId;
         }
         room.lastMessageAt = LocalDateTime.now();
+        room.lostPostId = lostPostId;
         return room;
     }
 

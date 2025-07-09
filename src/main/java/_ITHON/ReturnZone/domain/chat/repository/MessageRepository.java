@@ -4,8 +4,10 @@ import _ITHON.ReturnZone.domain.chat.entity.Message;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -32,4 +34,9 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
              AND m1.created_at   = x.maxCreated
             """, nativeQuery = true)
     List<Message> findLastMessages(@Param("roomIds") List<Long> roomIds);
+
+    @Modifying
+    @Transactional
+    @Query("delete from Message m where m.chatRoomId = :roomId")
+    void deleteByChatRoomId(@Param("roomId") Long roomId);
 }

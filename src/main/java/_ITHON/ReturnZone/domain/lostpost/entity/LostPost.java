@@ -94,6 +94,10 @@ public class LostPost {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private Status status = Status.FINDING_OWNER; // 기본 상태는 FINDING_OWNER
+
     // 생성자 파라미터도 description으로 변경되었는지 확인
     public LostPost(Long memberId, String title, List<String> imageUrls, String description, String category,
                     String itemName, String lostLocationDong, String detailedLocation,

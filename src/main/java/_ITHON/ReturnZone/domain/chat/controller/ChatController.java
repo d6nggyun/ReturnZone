@@ -2,15 +2,16 @@ package _ITHON.ReturnZone.domain.chat.controller;
 
 import _ITHON.ReturnZone.domain.chat.dto.req.AddChatRoomRequestDto;
 import _ITHON.ReturnZone.domain.chat.dto.res.ChatRoomResponseDto;
+import _ITHON.ReturnZone.domain.chat.dto.res.MessageContentResponseDto;
 import _ITHON.ReturnZone.domain.chat.dto.res.MessageResponseDto;
 import _ITHON.ReturnZone.domain.chat.service.ChatService;
+import _ITHON.ReturnZone.global.response.SliceResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -34,8 +35,8 @@ public class ChatController {
             }
     )
     @GetMapping("/rooms")
-    public ResponseEntity<Slice<ChatRoomResponseDto>> getChatRooms(@RequestHeader("X-USER-ID") Long myId,
-                                                                   @RequestParam(defaultValue = "0") int page) {
+    public ResponseEntity<SliceResponse<ChatRoomResponseDto>> getChatRooms(@RequestHeader("X-USER-ID") Long myId,
+                                                                           @RequestParam(defaultValue = "0") int page) {
         return ResponseEntity.status(HttpStatus.OK).body(chatService.getChatRooms(myId, page));
     }
 
@@ -48,8 +49,8 @@ public class ChatController {
             }
     )
     @GetMapping("/rooms/{roomId}/messages")
-    public ResponseEntity<Slice<MessageResponseDto>> getChats(@RequestHeader("X-USER-ID") Long myId, @PathVariable Long roomId,
-                                                              @RequestParam(defaultValue = "0") int page) {
+    public ResponseEntity<MessageResponseDto> getChats(@RequestHeader("X-USER-ID") Long myId, @PathVariable Long roomId,
+                                                        @RequestParam(defaultValue = "0") int page) {
         return ResponseEntity.status(HttpStatus.OK).body(chatService.getChats(myId, roomId, page));
     }
 
@@ -92,7 +93,7 @@ public class ChatController {
     }
 
     @PostMapping(value = "/rooms/{roomId}/messages", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<MessageResponseDto> uploadMessage(
+    public ResponseEntity<MessageContentResponseDto> uploadMessage(
             @PathVariable Long roomId,
             @RequestHeader("X-USER-ID") Long senderId,
             @RequestPart("image") MultipartFile imageFile) {

@@ -1,14 +1,13 @@
 package _ITHON.ReturnZone.domain.lostpost.dto.res;
 
 import _ITHON.ReturnZone.domain.lostpost.entity.LostPost;
+import _ITHON.ReturnZone.domain.lostpost.entity.RegistrationType;
 import _ITHON.ReturnZone.domain.lostpost.util.TimeUtil;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.math.BigDecimal;
-import java.util.List;
-import _ITHON.ReturnZone.domain.lostpost.entity.RegistrationType;
 
 @Getter
 @Schema(description = "분실물 미리보기 응답 DTO")
@@ -38,6 +37,9 @@ public class SimpleLostPostResponseDto {
     @Schema(description = "게시글 등록 유형", example = "LOST")
     private final RegistrationType registrationType;
 
+    @Schema(description = "분실물 상태 여부", example = "주인 찾는 중")
+    private final String status;
+
     @Builder
     private SimpleLostPostResponseDto(LostPost lostPost) {
         this.lostPostId = lostPost.getId();
@@ -50,5 +52,6 @@ public class SimpleLostPostResponseDto {
                 : lostPost.getImageUrls().get(0);
         this.instantSettlement = lostPost.isInstantSettlement();
         this.registrationType = lostPost.getRegistrationType();
+        this.status = lostPost.getStatus().getDescription();
     }
 }
