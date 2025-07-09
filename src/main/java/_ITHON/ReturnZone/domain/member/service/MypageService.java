@@ -21,6 +21,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,6 +40,7 @@ public class MypageService {
     private final BankAccountRepository bankAccountRepository;
     private final ExchangeRepository exchangeRepository;
     private final LostPostRepository lostPostRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public MyPageResponseDto getMyPage(Long myId) {
@@ -81,7 +83,7 @@ public class MypageService {
             }
         }
 
-        member.updateMyPage(updateMyPageRequestDto, imageUrl);
+        member.updateMyPage(updateMyPageRequestDto, passwordEncoder.encode(updateMyPageRequestDto.getPassword()),imageUrl);
         bankAccount.updateBankAccount(updateMyPageRequestDto);
 
         log.info("마이페이지 수정 성공: memberId={}", myId);
