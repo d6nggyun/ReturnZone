@@ -11,4 +11,7 @@ public class AddChatRoomRequestDto {
 
     @Schema(description = "채팅 상대 회원 ID", example = "17")
     private Long opponentId;
+
+    @Schema(description = "분실물 ID", example = "17")
+    private Long lostPostId;
 }

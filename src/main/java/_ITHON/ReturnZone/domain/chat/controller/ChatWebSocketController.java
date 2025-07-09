@@ -1,7 +1,7 @@
 package _ITHON.ReturnZone.domain.chat.controller;
 
 import _ITHON.ReturnZone.domain.chat.dto.req.SendMessageRequestDto;
-import _ITHON.ReturnZone.domain.chat.dto.res.MessageResponseDto;
+import _ITHON.ReturnZone.domain.chat.dto.res.MessageContentResponseDto;
 import _ITHON.ReturnZone.domain.chat.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -24,9 +24,9 @@ public class ChatWebSocketController {
         }
 
         // 채팅 메시지 처리
-        MessageResponseDto response = chatService.sendMessage(request.getRoomId(), request.getSenderId(), request.getContent(), null);
+        MessageContentResponseDto response = chatService.sendMessage(request.getRoomId(), request.getSenderId(), request.getContent(), null);
 
         // WebSocket을 통해 클라이언트에게 메시지 전송
-        messagingTemplate.convertAndSend("/topic/chat/" + response.getRoomId(), response);
+        messagingTemplate.convertAndSend("/topic/chat/" + request.getRoomId(), response);
     }
 }
