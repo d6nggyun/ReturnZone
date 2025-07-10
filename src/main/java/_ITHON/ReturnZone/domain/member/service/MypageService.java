@@ -109,10 +109,12 @@ public class MypageService {
 
         BankAccount bankAccount = getOrCreateBankAccount(member);
 
+        BigDecimal point = member.getPoint();
+
         member.usePoint(member.getPoint());
 
         Exchange exchange = Exchange.builder()
-                .member(member).bankAccountId(bankAccount.getId()).status(ExchangeStatus.PENDING).build();
+                .member(member).point(point).bankAccountId(bankAccount.getId()).status(ExchangeStatus.PENDING).build();
 
         log.info("포인트 차감 및 환전 객체 생성");
 
@@ -183,7 +185,12 @@ public class MypageService {
 
     @Transactional(readOnly = true)
     public List<ExchangeResponseDto> getMyExchanges(Long memberId) {
+
+        log.info("환전 내역 조회 요청: memberId={}", memberId);
+
         List<Exchange> exchanges = exchangeRepository.findByMemberIdOrderByRequestedAtDesc(memberId);
+
+        log.info("환전 내역 조회 성공: memberId={}", memberId);
 
         return exchanges.stream()
                 .map(exchange ->  ExchangeResponseDto.builder().exchange(exchange).build())

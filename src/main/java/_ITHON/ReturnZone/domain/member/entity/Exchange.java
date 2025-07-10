@@ -38,10 +38,10 @@ public class Exchange {
     private LocalDateTime processedAt;
 
     @Builder
-    private Exchange(Member member, Long bankAccountId, ExchangeStatus status, String adminMemo) {
+    private Exchange(Member member, BigDecimal point, Long bankAccountId, ExchangeStatus status, String adminMemo) {
         this.memberId = member.getId();
         this.bankAccountId = bankAccountId;
-        this.point = member.getPoint();
+        this.point = point;
         this.status = status;
         this.adminMemo = adminMemo;
         this.requestedAt = LocalDateTime.now();
