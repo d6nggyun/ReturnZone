@@ -122,7 +122,7 @@ public class MypageService {
 
         log.info("환전 요청 성공: memberId={}", myId);
 
-        return MyPageResponseDto.builder().member(member).bankAccount(bankAccount).build();
+        return MyPageResponseDto.builder().member(member).point(exchange.getPoint()).bankAccount(bankAccount).build();
     }
 
     @Transactional

@@ -31,10 +31,10 @@ public class MyPageResponseDto {
     private final String accountHolder;
 
     @Builder
-    private MyPageResponseDto(Member member, BankAccount bankAccount) {
+    private MyPageResponseDto(Member member, BigDecimal point, BankAccount bankAccount) {
         this.nickname = member.getNickname();
         this.imageUrl = member.getImageUrl();
-        this.point = member.getPoint();
+        this.point = point;
         this.bankName = bankAccount.getBankName();
         this.accountNumber = bankAccount.getAccountNumber();
         this.accountHolder = bankAccount.getAccountHolder();
