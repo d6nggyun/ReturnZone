@@ -69,6 +69,7 @@ public class Member {
 
     public void usePoint(BigDecimal point) {
         this.point = this.point.subtract(point);
+        this.totalPoint = this.totalPoint.subtract(point);
     }
 
     public void refundPoint(BigDecimal point) {
