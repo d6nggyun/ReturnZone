@@ -48,6 +48,12 @@ public class Member {
     @Column(nullable = false)
     private BigDecimal point = BigDecimal.ZERO;
 
+    @Column(nullable = false)
+    private BigDecimal totalPoint = BigDecimal.ZERO;
+
+    @Column(nullable = false)
+    private BigDecimal exchangeablePoint = BigDecimal.ZERO;
+
     public Member(SignupRequestDto signupRequestDto, String encodedPassword) {
         this.email = signupRequestDto.getEmail();
         this.username = signupRequestDto.getUsername();
