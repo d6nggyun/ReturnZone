@@ -36,6 +36,12 @@ public class Member {
     @Column(nullable = false) // provider 필드를 추가하고, DB에서 NOT NULL 제약조건이 있다면 nullable = false로 설정
     private String provider; // 어떤 방식으로 가입했는지 (예: "local", "kakao", "google")
 
+    @Column(nullable = false)
+    private Integer totalPoint = 0;
+
+    @Column(nullable = false)
+    private Integer exchangeablePoint = 0;
+
     public Member(SignupRequestDto signupRequestDto, String encodedPassword) {
         this.email = signupRequestDto.getEmail();
         this.username = signupRequestDto.getUsername();
