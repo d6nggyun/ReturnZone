@@ -200,7 +200,8 @@ public class ChatService {
 
         log.info("[채팅방 생성 성공]");
 
-        return ChatRoomResponseDto.builder().chatRoom(chatRoom).otherMember(otherMember).lastMessage(null).unreadCount(0).build();
+        return ChatRoomResponseDto.builder().chatRoom(chatRoom).otherMember(otherMember)
+                .lastMessage(null).unreadCount(0).lostPostStatus(lostPost.getStatus()).build();
     }
 
     @Transactional
