@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Entity
 @Getter
 @Setter
@@ -37,10 +39,10 @@ public class Member {
     private String provider; // 어떤 방식으로 가입했는지 (예: "local", "kakao", "google")
 
     @Column(nullable = false)
-    private Integer totalPoint = 0;
+    private BigDecimal totalPoint = BigDecimal.ZERO;
 
     @Column(nullable = false)
-    private Integer exchangeablePoint = 0;
+    private BigDecimal exchangeablePoint = BigDecimal.ZERO;
 
     public Member(SignupRequestDto signupRequestDto, String encodedPassword) {
         this.email = signupRequestDto.getEmail();
