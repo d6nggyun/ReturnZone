@@ -37,15 +37,15 @@ public class PaymentService {
         // 지급자 포인트 차감
         payer.setTotalPoint(payer.getTotalPoint().subtract(rewardAmount));
         // 환전 가능 포인트는 총 포인트보다 많을 수 없으므로 조정 (음수 방지)
-        payer.setExchangeablePoint(payer.getExchangeablePoint().min(payer.getTotalPoint()));
-        if (payer.getExchangeablePoint().compareTo(BigDecimal.ZERO) < 0) {
-            payer.setExchangeablePoint(BigDecimal.ZERO);
+        payer.setPoint(payer.getPoint().min(payer.getTotalPoint()));
+        if (payer.getPoint().compareTo(BigDecimal.ZERO) < 0) {
+            payer.setPoint(BigDecimal.ZERO);
         }
 
 
         // 수령자 포인트 적립
         receiver.setTotalPoint(receiver.getTotalPoint().add(rewardAmount));
-        receiver.setExchangeablePoint(receiver.getExchangeablePoint().add(rewardAmount));
+        receiver.setPoint(receiver.getPoint().add(rewardAmount));
 
         memberRepository.save(payer);
         memberRepository.save(receiver);
@@ -64,7 +64,7 @@ public class PaymentService {
                 .orElseThrow(() -> new IllegalArgumentException("회원 정보를 찾을 수 없습니다."));
 
         member.setTotalPoint(member.getTotalPoint().add(points));
-        member.setExchangeablePoint(member.getExchangeablePoint().add(points));
+        member.setPoint(member.getPoint().add(points));
 
         memberRepository.save(member);
 
