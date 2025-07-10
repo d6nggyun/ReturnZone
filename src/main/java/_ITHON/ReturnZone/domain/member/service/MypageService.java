@@ -57,7 +57,7 @@ public class MypageService {
 
         log.info("마이페이지 조회 성공: memberId={}", myId);
 
-        return MyPageResponseDto.builder().member(member).bankAccount(bankAccount).build();
+        return MyPageResponseDto.builder().member(member).point(member.getPoint()).bankAccount(bankAccount).build();
     }
 
     @Transactional
@@ -88,7 +88,7 @@ public class MypageService {
 
         log.info("마이페이지 수정 성공: memberId={}", myId);
 
-        return MyPageResponseDto.builder().member(member).bankAccount(bankAccount).build();
+        return MyPageResponseDto.builder().member(member).point(member.getPoint()).bankAccount(bankAccount).build();
     }
 
     @Transactional
@@ -153,7 +153,7 @@ public class MypageService {
 
         log.info("환전 처리 성공: exchangeId={}", exchangeId);
 
-        return MyPageResponseDto.builder().member(member).bankAccount(getOrCreateBankAccount(member)).build();
+        return MyPageResponseDto.builder().member(member).point(member.getPoint()).bankAccount(getOrCreateBankAccount(member)).build();
     }
 
     @Transactional(readOnly = true)
