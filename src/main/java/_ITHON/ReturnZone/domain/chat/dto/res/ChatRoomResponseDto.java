@@ -46,6 +46,6 @@ public class ChatRoomResponseDto {
         this.lastMessage = lastMessage;
         this.lastMessageAt = chatRoom.getLastMessageAt();
         this.unreadCount = unreadCount;
-        this.lostPostStatus = lostPostStatus.getDescription();
+        this.lostPostStatus = lostPostStatus != null ? lostPostStatus.getDescription() : null;
     }
 }
