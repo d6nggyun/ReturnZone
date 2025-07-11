@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Slf4j
 @Service
@@ -37,7 +39,7 @@ public class MemberService {
     }
 
     @Transactional(readOnly = true) // 로그인 기능은 데이터 변경이 없으므로 readOnly = true
-    public LoginResponseDto login(LoginRequestDto loginRequestDto) {
+    public LoginResponseDto login(LoginRequestDto loginRequestDto, HttpServletRequest request) {
         log.info("[로그인 요청] email={}", loginRequestDto.getEmail());
 
         // 1. 이메일로 사용자 찾기
@@ -53,7 +55,12 @@ public class MemberService {
             throw new IllegalArgumentException("이메일 또는 비밀번호가 일치하지 않습니다.");
         }
 
-        log.info("[로그인 성공] memberId={}, email={}", member.getId(), member.getEmail());
+
+        HttpSession session = request.getSession();
+        session.setAttribute("loggedInMemberId", member.getId());
+        session.setMaxInactiveInterval(30 * 60);
+        log.info("[로그인 성공] memberId={}, email={}, sessionId={}", member.getId(), member.getEmail(), session.getId());
+
         return LoginResponseDto.builder().member(member).build();
     }
 
