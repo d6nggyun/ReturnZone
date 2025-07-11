@@ -6,6 +6,7 @@ import _ITHON.ReturnZone.domain.chat.dto.res.MessageContentResponseDto;
 import _ITHON.ReturnZone.domain.chat.dto.res.MessageResponseDto;
 import _ITHON.ReturnZone.domain.chat.service.ChatService;
 import _ITHON.ReturnZone.global.response.SliceResponse;
+import _ITHON.ReturnZone.global.security.jwt.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -17,6 +18,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import _ITHON.ReturnZone.global.security.jwt.UserDetailsImpl;
 
 @RestController
 @RequiredArgsConstructor
@@ -35,9 +38,9 @@ public class ChatController {
             }
     )
     @GetMapping("/rooms")
-    public ResponseEntity<SliceResponse<ChatRoomResponseDto>> getChatRooms(@RequestHeader("X-USER-ID") Long myId,
+    public ResponseEntity<SliceResponse<ChatRoomResponseDto>> getChatRooms(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                                            @RequestParam(defaultValue = "0") int page) {
-        return ResponseEntity.status(HttpStatus.OK).body(chatService.getChatRooms(myId, page));
+        return ResponseEntity.status(HttpStatus.OK).body(chatService.getChatRooms(userDetails.getMember().getId(), page));
     }
 
     @Operation(summary = "채팅 목록 조회", description = "채팅 목록을 조회합니다.",
@@ -49,9 +52,9 @@ public class ChatController {
             }
     )
     @GetMapping("/rooms/{roomId}/messages")
-    public ResponseEntity<MessageResponseDto> getChats(@RequestHeader("X-USER-ID") Long myId, @PathVariable Long roomId,
+    public ResponseEntity<MessageResponseDto> getChats(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long roomId,
                                                         @RequestParam(defaultValue = "0") int page) {
-        return ResponseEntity.status(HttpStatus.OK).body(chatService.getChats(myId, roomId, page));
+        return ResponseEntity.status(HttpStatus.OK).body(chatService.getChats(userDetails.getMember().getId(), roomId, page));
     }
 
     @Operation(summary = "채팅방 생성", description = "채팅방을 생성합니다.",
@@ -63,9 +66,9 @@ public class ChatController {
             }
     )
     @PostMapping("/rooms")
-    public ResponseEntity<ChatRoomResponseDto> addChatRoom(@RequestHeader("X-USER-ID") Long myId,
+    public ResponseEntity<ChatRoomResponseDto> addChatRoom(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                            @RequestBody AddChatRoomRequestDto request) {
-        return ResponseEntity.status(HttpStatus.OK).body(chatService.addChatRoom(myId, request));
+        return ResponseEntity.status(HttpStatus.OK).body(chatService.addChatRoom(userDetails.getMember().getId(), request));
     }
 
     @Operation(summary = "채팅방 나가기", description = "채팅방을 나가고 해당 채팅방을 삭제합니다.",
@@ -74,9 +77,9 @@ public class ChatController {
             }
     )
     @DeleteMapping("/rooms/{roomId}")
-    public ResponseEntity<Void> deleteChatRoom(@RequestHeader("X-USER-ID") Long myId,
+    public ResponseEntity<Void> deleteChatRoom(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                               @PathVariable Long roomId) {
-        chatService.deleteChatRoom(myId, roomId);
+        chatService.deleteChatRoom(userDetails.getMember().getId(), roomId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
@@ -86,17 +89,17 @@ public class ChatController {
             }
     )
     @PostMapping("/rooms/{roomId}/read")
-    public ResponseEntity<Void> markRead(@RequestHeader("X-USER-ID") Long myId,
+    public ResponseEntity<Void> markRead(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                          @PathVariable Long roomId) {
-        chatService.markRead(myId, roomId);
+        chatService.markRead(userDetails.getMember().getId(), roomId);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping(value = "/rooms/{roomId}/messages", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MessageContentResponseDto> uploadMessage(
             @PathVariable Long roomId,
-            @RequestHeader("X-USER-ID") Long senderId,
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
             @RequestPart("image") MultipartFile imageFile) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(chatService.sendMessage(roomId, senderId, "", imageFile));
+        return ResponseEntity.status(HttpStatus.CREATED).body(chatService.sendMessage(roomId, userDetails.getMember().getId(), "", imageFile));
     }
 }

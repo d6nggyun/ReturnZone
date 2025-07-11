@@ -6,6 +6,7 @@ import _ITHON.ReturnZone.domain.member.dto.res.ExchangeResponseDto;
 import _ITHON.ReturnZone.domain.member.dto.res.MyPageResponseDto;
 import _ITHON.ReturnZone.domain.member.service.MypageService;
 import _ITHON.ReturnZone.global.response.SliceResponse;
+import _ITHON.ReturnZone.global.security.jwt.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -39,8 +41,8 @@ public class MypageController {
             }
     )
     @GetMapping
-    public ResponseEntity<MyPageResponseDto> getMyPage(@RequestHeader("X-USER-ID") Long myId) {
-        return ResponseEntity.status(HttpStatus.OK).body(mypageService.getMyPage(myId));
+    public ResponseEntity<MyPageResponseDto> getMyPage(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return ResponseEntity.status(HttpStatus.OK).body(mypageService.getMyPage(userDetails.getMember().getId()));
     }
 
     @Operation(summary = "마이페이지 수정", description = "마이페이지를 수정합니다.",
@@ -52,10 +54,10 @@ public class MypageController {
             }
     )
     @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<MyPageResponseDto> updateMyPage(@RequestHeader("X-USER-ID") Long myId,
+    public ResponseEntity<MyPageResponseDto> updateMyPage(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                           @Valid @RequestPart UpdateMyPageRequestDto updateMyPageRequestDto,
                                                           @RequestPart("image") MultipartFile image) {
-        return ResponseEntity.status(HttpStatus.OK).body(mypageService.updateMyPage(myId, updateMyPageRequestDto, image));
+        return ResponseEntity.status(HttpStatus.OK).body(mypageService.updateMyPage(userDetails.getMember().getId(), updateMyPageRequestDto, image));
     }
 
     @Operation(summary = "환전하기", description = "환전을 요청합니다.",
@@ -67,8 +69,8 @@ public class MypageController {
             }
     )
     @PostMapping("/exchange")
-    public ResponseEntity<MyPageResponseDto> exchange(@RequestHeader("X-USER-ID") Long myId) {
-        return ResponseEntity.status(HttpStatus.OK).body(mypageService.exchange(myId));
+    public ResponseEntity<MyPageResponseDto> exchange(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return ResponseEntity.status(HttpStatus.OK).body(mypageService.exchange(userDetails.getMember().getId()));
     }
 
     @Operation(summary = "환전 요청 처리", description = "회원의 환전 요청을 처리합니다. (관리자 용)",
@@ -95,9 +97,9 @@ public class MypageController {
             }
     )
     @GetMapping("/lostPosts")
-    public ResponseEntity<SliceResponse<SimpleLostPostResponseDto>> getMyLostPosts(@RequestHeader("X-USER-ID") Long myId,
+    public ResponseEntity<SliceResponse<SimpleLostPostResponseDto>> getMyLostPosts(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                                                    @RequestParam(defaultValue = "0") int page) {
-        return ResponseEntity.status(HttpStatus.OK).body(mypageService.getMyLostPosts(myId, page));
+        return ResponseEntity.status(HttpStatus.OK).body(mypageService.getMyLostPosts(userDetails.getMember().getId(), page));
     }
 
     @Operation(summary = "환전 내역 조회", description = "회원의 환전 내역을 조회합니다. (관리자 용)",
@@ -109,7 +111,7 @@ public class MypageController {
             }
     )
     @GetMapping("/exchange")
-    public ResponseEntity<List<ExchangeResponseDto>> getMyExchanges(@RequestHeader("X-USER-ID") Long myId) {
-        return ResponseEntity.status(HttpStatus.OK).body(mypageService.getMyExchanges(myId));
+    public ResponseEntity<List<ExchangeResponseDto>> getMyExchanges(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return ResponseEntity.status(HttpStatus.OK).body(mypageService.getMyExchanges(userDetails.getMember().getId()));
     }
 }
