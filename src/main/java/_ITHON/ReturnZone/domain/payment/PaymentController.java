@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import _ITHON.ReturnZone.global.security.jwt.UserDetailsImpl;
 
 import java.math.BigDecimal; // BigDecimal import
 
@@ -29,13 +31,13 @@ public class PaymentController {
     @PostMapping("/pay-reward")
     public ResponseEntity<String> payReward(
             @Parameter(description = "현상금 지급자 회원 ID", example = "1", required = true)
-            @RequestParam Long payerId,
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
             @Parameter(description = "현상금 수령자 회원 ID", example = "2", required = true)
             @RequestParam Long receiverId,
             @Parameter(description = "지급할 현상금 포인트", example = "10000.00", required = true) // BigDecimal 예시
             @RequestParam BigDecimal rewardAmount) { // BigDecimal로 변경
         try {
-            paymentService.payReward(payerId, receiverId, rewardAmount);
+            paymentService.payReward(userDetails.getMember().getId(), receiverId, rewardAmount);
             return ResponseEntity.ok("현상금 지급 완료");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
