@@ -5,19 +5,20 @@ import _ITHON.ReturnZone.domain.member.dto.req.SignupRequestDto;
 import _ITHON.ReturnZone.domain.member.dto.res.LoginResponseDto;
 import _ITHON.ReturnZone.domain.member.dto.res.SignupResponseDto;
 import _ITHON.ReturnZone.domain.member.service.MemberService;
+import _ITHON.ReturnZone.global.security.jwt.JwtTokenRequestDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import jakarta.servlet.http.HttpServletRequest;
 
 @Slf4j
 @Tag(name = "회원 API", description = "회원가입, 로그인 등 회원 관련 API")
@@ -46,6 +47,24 @@ public class MemberController {
     public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginRequestDto loginRequestDto, HttpServletRequest request) {
         LoginResponseDto responseDto = memberService.login(loginRequestDto, request); // <-- request 객체 전달
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
+    }
+
+    @Operation(summary = "토큰 재발급", description = "Refresh Token을 재발급 합니다.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200", description = "새로운 리프레시 토큰 반환",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = LoginResponseDto.class)
+                            )
+                    ),
+                    @ApiResponse(responseCode = "420", description = "만료된 리프레시 토큰입니다."),
+                    @ApiResponse(responseCode = "404", description = "리프레시 토큰 조회 실패"),
+                    @ApiResponse(responseCode = "400", description = "리프레시 토큰 불일치")
+            }
+    )
+    @PostMapping("/refresh")
+    public ResponseEntity<LoginResponseDto> refresh(@Valid @RequestBody JwtTokenRequestDto jwtTokenRequestDto) {
+        return ResponseEntity.status(HttpStatus.OK).body(memberService.refresh(jwtTokenRequestDto));
     }
 
     @Operation(summary = "이메일 중복 확인", description = "이메일이 이미 존재하는지 확인합니다.",

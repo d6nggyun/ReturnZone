@@ -2,6 +2,7 @@ package _ITHON.ReturnZone.domain.search;
 
 import _ITHON.ReturnZone.domain.lostpost.dto.res.SimpleLostPostResponseDto;
 import _ITHON.ReturnZone.domain.lostpost.service.LostPostService;
+import _ITHON.ReturnZone.global.security.jwt.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema; // ArraySchema import
@@ -11,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse; // ApiResponse impor
 import io.swagger.v3.oas.annotations.tags.Tag; // Tag import
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,8 +38,8 @@ public class SearchController {
     @GetMapping("/recent")
     public ResponseEntity<List<String>> getRecentSearches(
             @Parameter(description = "현재 로그인된 사용자 ID (X-USER-ID 헤더로 전달)", example = "1", required = true)
-            @RequestHeader("X-USER-ID") Long memberId) {
-        List<String> recentSearches = recentSearchService.getRecentSearches(memberId);
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        List<String> recentSearches = recentSearchService.getRecentSearches(userDetails.getMember().getId());
         return ResponseEntity.ok(recentSearches);
     }
 
@@ -51,11 +53,10 @@ public class SearchController {
     )
     @DeleteMapping("/recent")
     public ResponseEntity<Void> deleteRecentSearch(
-            @Parameter(description = "현재 로그인된 사용자 ID (X-USER-ID 헤더로 전달)", example = "1", required = true)
-            @RequestHeader("X-USER-ID") Long memberId,
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
             @Parameter(description = "삭제할 검색어", required = true, example = "아이폰")
             @RequestParam String keyword) {
-        recentSearchService.deleteRecentSearch(memberId, keyword);
+        recentSearchService.deleteRecentSearch(userDetails.getMember().getId(), keyword);
         return ResponseEntity.noContent().build();
     }
 
@@ -68,9 +69,8 @@ public class SearchController {
     )
     @DeleteMapping("/recent/all")
     public ResponseEntity<Void> deleteAllRecentSearches(
-            @Parameter(description = "현재 로그인된 사용자 ID (X-USER-ID 헤더로 전달)", example = "1", required = true)
-            @RequestHeader("X-USER-ID") Long memberId) {
-        recentSearchService.deleteAllRecentSearches(memberId);
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        recentSearchService.deleteAllRecentSearches(userDetails.getMember().getId());
         return ResponseEntity.noContent().build();
     }
 
@@ -85,15 +85,14 @@ public class SearchController {
     )
     @GetMapping("/posts") // 검색 API 엔드포인트
     public ResponseEntity<List<SimpleLostPostResponseDto>> searchPosts(
-            @Parameter(description = "현재 로그인된 사용자 ID (X-USER-ID 헤더로 전달)", example = "1", required = true)
-            @RequestHeader("X-USER-ID") Long memberId,
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
             @Parameter(description = "검색할 키워드 (게시글 제목에 포함)", required = true, example = "아이폰")
             @RequestParam String keyword,
             @Parameter(description = "반환 완료된 게시물 포함 여부 (true: 포함, false: 미포함)", example = "false")
             @RequestParam(defaultValue = "false") boolean includeReturned) {
 
         // 최근 검색어에 자동 추가
-        recentSearchService.addRecentSearch(memberId, keyword);
+        recentSearchService.addRecentSearch(userDetails.getMember().getId(), keyword);
 
         List<SimpleLostPostResponseDto> searchResults = lostPostService.searchPosts(keyword, includeReturned);
         return ResponseEntity.ok(searchResults);
