@@ -8,7 +8,6 @@ import _ITHON.ReturnZone.domain.lostpost.entity.RegistrationType;
 import _ITHON.ReturnZone.domain.lostpost.entity.SortType;
 import _ITHON.ReturnZone.domain.lostpost.service.KakaoLocalApiService;
 import _ITHON.ReturnZone.domain.lostpost.service.LostPostService;
-import _ITHON.ReturnZone.global.security.jwt.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -26,9 +25,10 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import _ITHON.ReturnZone.global.security.jwt.UserDetailsImpl;
 
 import java.util.List;
 
@@ -124,7 +124,8 @@ public class LostPostController {
     public ResponseEntity<LostPostResponseDto> createLostPost(
             @Valid @RequestPart LostPostRequestDto requestDto,
             @RequestPart(value = "images", required = false) List<MultipartFile> images,
-            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+            @Parameter(description = "현재 로그인된 사용자 ID (X-USER-ID 헤더로 전달)", example = "1") // 스웨거 문서화
+            @AuthenticationPrincipal UserDetailsImpl userDetails) { // 클라이언트가 X-USER-ID 헤더로 사용자 ID를 보내야 함) {
 
         LostPostResponseDto createdPost = lostPostService.createLostPost(requestDto, images, userDetails.getMember().getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(createdPost);
@@ -144,9 +145,10 @@ public class LostPostController {
             @PathVariable Long lostPostId,
             @Valid @RequestPart LostPostRequestDto requestDto,
             @RequestPart(value = "images", required = false) List<MultipartFile> images,
-            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+            @Parameter(description = "현재 로그인된 사용자 ID (X-USER-ID 헤더로 전달)", example = "1") // 스웨거 문서화
+            @AuthenticationPrincipal UserDetailsImpl userDetails) { // 클라이언트가 X-USER-ID 헤더로 사용자 ID를 보내야 함) {
 
-        LostPostResponseDto updatedPost = lostPostService.updateLostPost(lostPostId, requestDto, images, userDetails.getMember().getId());
+        LostPostResponseDto updatedPost = lostPostService.updateLostPost(lostPostId, requestDto, images, userDetails.getMember().getId()); // 수정된 부분
         return ResponseEntity.ok(updatedPost);
     }
 
@@ -158,6 +160,7 @@ public class LostPostController {
             })
     @DeleteMapping("/{lostPostId}")
     public ResponseEntity<Void> deleteLostPost(@PathVariable Long lostPostId,
+                                               @Parameter(description = "현재 로그인된 사용자 ID (X-USER-ID 헤더로 전달)", example = "1") // 스웨거 문서화
                                                @AuthenticationPrincipal UserDetailsImpl userDetails) { // <--- 메서드 파라미터로 memberId를 받습니다.) {
         lostPostService.deleteLostPost(lostPostId, userDetails.getMember().getId());
         return ResponseEntity.noContent().build(); // 204 No Content 응답 (성공적으로 삭제되었지만 반환할 내용이 없음)

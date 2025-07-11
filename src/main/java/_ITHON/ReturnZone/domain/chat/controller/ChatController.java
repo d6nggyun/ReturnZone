@@ -16,9 +16,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import _ITHON.ReturnZone.global.security.jwt.UserDetailsImpl;
 
 @RestController
 @RequiredArgsConstructor
@@ -51,8 +52,7 @@ public class ChatController {
             }
     )
     @GetMapping("/rooms/{roomId}/messages")
-    public ResponseEntity<MessageResponseDto> getChats(@AuthenticationPrincipal UserDetailsImpl userDetails,
-                                                       @PathVariable Long roomId,
+    public ResponseEntity<MessageResponseDto> getChats(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long roomId,
                                                         @RequestParam(defaultValue = "0") int page) {
         return ResponseEntity.status(HttpStatus.OK).body(chatService.getChats(userDetails.getMember().getId(), roomId, page));
     }
