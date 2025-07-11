@@ -23,7 +23,7 @@ public class RefreshToken {
     private Long memberId;
 
     @Column(nullable = false)
-    private String username;
+    private String email;
 
     @Column(nullable = false)
     private String refreshToken;
@@ -44,7 +44,7 @@ public class RefreshToken {
     @Builder
     private RefreshToken(Member member, String refreshToken) {
         this.memberId = member.getId();
-        this.username = member.getUsername();
+        this.email = member.getEmail();
         this.refreshToken = refreshToken;
     }
 }
