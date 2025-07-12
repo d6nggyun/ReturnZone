@@ -16,6 +16,16 @@ spring:
         jdbc:
           time_zone: Asia/Seoul
 
+  mail:
+    host: smtp.gmail.com # Gmail의 SMTP 서버 호스트 주소
+    port: 587 # TLS 암호화를 사용하는 표준 포트 (권장)
+    # port: 465 # SSL 암호화를 사용하는 포트 (이 경우 아래 properties에서 starttls.enable 대신 ssl.enable을 true로 설정)
+    username: your.gmail.address@gmail.com # <-- 여기에 본인의 Gmail 주소를 입력하세요!
+    password: your_app_password_or_gmail_password # <-- 여기에 본인의 Gmail 비밀번호 또는 앱 비밀번호를 입력하세요!
+    properties:
+      mail.smtp.auth: true # SMTP 인증 사용 여부
+      mail.smtp.starttls.enable: true # TLS 암호화 사용 여부 (포트 587 사용 시)
+
   jwt:
     secret: ${JWT_SECRET}
 
