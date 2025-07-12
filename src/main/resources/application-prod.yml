@@ -34,7 +34,7 @@ logging:
 kakao:
   auth:
     client-id: ${CLIENT_ID}
-    redirect-uri: http://15.164.234.32:8080/auth/login/kakao
+    redirect-uri: http://15.164.234.32:8080/KakaoCallback
 
   local:
     api-key: ${CLIENT_ID}
