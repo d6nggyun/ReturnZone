@@ -18,8 +18,4 @@ public class SendMessageRequestDto {
     @NotBlank(message = "채팅 내용이 비어있습니다.")
     @Schema(description = "채팅 내용", example = "안녕하세요!")
     private String content;
-
-    @NotBlank(message = "JWT 토큰이 누락되었습니다.")
-    @Schema(description = "JWT 토큰", example = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6...")
-    private String token;
 }

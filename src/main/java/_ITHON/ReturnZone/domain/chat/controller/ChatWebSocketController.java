@@ -6,6 +6,7 @@ import _ITHON.ReturnZone.domain.chat.service.ChatService;
 import _ITHON.ReturnZone.global.security.jwt.JwtTokenProvider;
 import _ITHON.ReturnZone.global.security.jwt.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
@@ -21,19 +22,19 @@ public class ChatWebSocketController {
 
     // 클라이언트 전송 주소: /app/chat.send
     @MessageMapping("/chat.send")
-    public void handleMessage(SendMessageRequestDto request) {
+    public void handleMessage(SendMessageRequestDto request, @Header("Authorization") String accessToken) {
 
         if (request.getContent() == null || request.getContent().isBlank()) {
             throw new IllegalArgumentException("텍스트 내용이 비어 있습니다.");
         }
 
         // JWT로부터 사용자 인증
-        String jwt = request.getToken();
-        if (jwt == null || jwt.isBlank()) {
+        if (accessToken == null || accessToken.isBlank()) {
             throw new IllegalArgumentException("JWT 토큰이 누락되었습니다.");
         }
 
-        Authentication auth = jwtTokenProvider.getAuthentication(jwt);
+        String token = accessToken.replace("Bearer ", "");
+        Authentication auth = jwtTokenProvider.getAuthentication(token);
         Long senderId = ((UserDetailsImpl) auth.getPrincipal()).getMember().getId();
 
         // 채팅 메시지 처리
