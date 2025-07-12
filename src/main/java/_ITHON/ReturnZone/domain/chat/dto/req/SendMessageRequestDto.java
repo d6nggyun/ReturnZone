@@ -15,10 +15,6 @@ public class SendMessageRequestDto {
     @Schema(description = "채팅방 Id", example = "1")
     private Long roomId;
 
-    @NotNull(message = "전송자 Id가 비어있습니다.")
-    @Schema(description = "전송자 Id", example = "1")
-    private Long senderId;
-
     @NotBlank(message = "채팅 내용이 비어있습니다.")
     @Schema(description = "채팅 내용", example = "안녕하세요!")
     private String content;

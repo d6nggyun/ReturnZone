@@ -28,6 +28,9 @@ public class LostPostResponseDto {
     @Schema(description = "분실물 제목", example = "소니 헤드셋")
     private final String title;
 
+    @Schema(description = "유저 ID", example = "1")
+    private final Long memberId;
+
     @Schema(description = "유저 프로필", example = "https://your-bucket.s3.ap-northeast-2.amazonaws.com/lostPosts/lostpost1.jpg")
     private final String memberImageUrl;
 
@@ -80,10 +83,14 @@ public class LostPostResponseDto {
     @Schema(description = "분실 종료 시간", example = "2025-06-25T13:00:00")
     private final LocalDateTime lostDateTimeEnd;
 
+    @Schema(description = "비슷한 다른 글")
+    private final List<SimpleLostPostResponseDto> similarLostPosts;
+
     @Builder
-    private LostPostResponseDto(LostPost lostPost, Member member) {
+    private LostPostResponseDto(LostPost lostPost, Member member, List<SimpleLostPostResponseDto> similarLostPosts) {
         this.lostPostId = lostPost.getId();
         this.title = lostPost.getTitle();
+        this.memberId = member.getId();
         this.memberImageUrl = member.getImageUrl();
         this.nickname = member.getNickname();
         this.timeAgo = TimeUtil.getTimeAgo(lostPost.getCreatedAt());
@@ -111,5 +118,7 @@ public class LostPostResponseDto {
         this.lostDateTimeStart = lostPost.getLostDateTimeStart();
         this.lostDateTimeEnd = lostPost.getLostDateTimeEnd();
         this.registrationType = lostPost.getRegistrationType();
+
+        this.similarLostPosts = similarLostPosts;
     }
 }

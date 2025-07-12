@@ -1,6 +1,7 @@
 package _ITHON.ReturnZone.domain.chat.dto.res;
 
 import _ITHON.ReturnZone.domain.chat.entity.ChatRoom;
+import _ITHON.ReturnZone.domain.lostpost.entity.Status;
 import _ITHON.ReturnZone.domain.member.entity.Member;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
@@ -33,8 +34,11 @@ public class ChatRoomResponseDto {
     @Schema(description = "읽지 않은 메시지 수", example = "3")
     private final int unreadCount;
 
+    @Schema(description = "분실물 상태", example = "주인 찾는 중")
+    private final String lostPostStatus;
+
     @Builder
-    public ChatRoomResponseDto(ChatRoom chatRoom, Member otherMember, String lastMessage, int unreadCount) {
+    public ChatRoomResponseDto(ChatRoom chatRoom, Member otherMember, String lastMessage, int unreadCount, Status lostPostStatus) {
         this.roomId = chatRoom.getId();
         this.otherMemberId = otherMember.getId();
         this.otherMemberNickname = otherMember.getNickname();
@@ -42,5 +46,6 @@ public class ChatRoomResponseDto {
         this.lastMessage = lastMessage;
         this.lastMessageAt = chatRoom.getLastMessageAt();
         this.unreadCount = unreadCount;
+        this.lostPostStatus = lostPostStatus != null ? lostPostStatus.getDescription() : null;
     }
 }
