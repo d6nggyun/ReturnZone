@@ -31,7 +31,7 @@ public class JwtFilter extends OncePerRequestFilter {
         String requestURI = request.getRequestURI();
 
         // 토큰 재발급 API는 건너뜀
-        if ("/api/auth/refresh".equals(requestURI)) {
+        if ("/api/auth/refresh".equals(requestURI) || "/api/v1/payments/add-points".equals(requestURI)) {
             filterChain.doFilter(request, response);
             return;
         }

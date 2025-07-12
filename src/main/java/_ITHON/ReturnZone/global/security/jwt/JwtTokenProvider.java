@@ -25,7 +25,7 @@ public class JwtTokenProvider implements InitializingBean {
 
     private static final String AUTHORITIES_KEY = "auth";
 
-    // 액세스 토큰 유효 시간 (2시간)
+    // 액세스 토큰 유효 시간 (7일)
     private final long accessTokenValidityInSeconds;
 
     // 리프레시 토큰 유효 시간 (3일)
