@@ -20,8 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.Map;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Tag(name = "회원 API", description = "회원가입, 로그인 등 회원 관련 API")
@@ -150,7 +148,8 @@ public class MemberController {
             log.error("임시 비밀번호 발송 중 오류 발생: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("임시 비밀번호 발송에 실패했습니다. 잠시 후 다시 시도해주세요.");
         }
-      
+    }
+
     @Operation(summary = "로그아웃", description = "현재 로그인된 세션을 무효화하여 로그아웃합니다.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "로그아웃 성공"),
