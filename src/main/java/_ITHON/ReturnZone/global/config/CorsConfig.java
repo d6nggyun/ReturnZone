@@ -20,7 +20,7 @@ public class CorsConfig {
                 "https://15.164.234.32.nip.io",
                 "http://localhost:3000",
                 "http://localhost:5173",
-                "http://127.0.0.1",
+                "http://127.0.0.1:5500",
                 "https://returnzone.netlify.app"
         ));
         configuration.addAllowedHeader("*");
